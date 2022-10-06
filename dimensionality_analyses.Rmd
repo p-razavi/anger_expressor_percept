@@ -28,6 +28,7 @@ var_name_df <- readxl::read_xlsx("variable_names.xlsx")
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Data Preparation
 
 ```{r data-cleaning}
 #remove rows that are all NAs
@@ -85,6 +86,59 @@ ratings_centered_longish <- ratings_centered %>%
 #remove the row where all ratings are NA
 ratings_centered_longish <- ratings_centered_longish %>% 
                                   dplyr::filter(!if_all(c(capable.leader, community.work), is.na))
+
+
+```
+
+# Determining the Number of Factors
+
+Determining the optimal number of factors using screeplot, parallel analyses and other methods from the _psych_ package. Different methods suggest that 2-, 4-, and 9-factor structures are plausible solutions.
+
+```{r scree-plot}
+#seems like 4- or 5- factors are reasonable solutions
+ratings_centered_longish %>% 
+  select(capable.leader:community.work) %>% 
+  psych::scree()
+
+```
+
+
+
+```{r parallel-analysis}
+#Parallel analysis suggests that the number of factors =  9  and the number of components =  4 
+ratings_centered_longish %>% 
+  select(capable.leader:community.work) %>% 
+  psych::fa.parallel()
+
+
+```
+
+
+```{r velicor-VSS}
+
+#VSS complexity 1 >>>  1  factors
+#VSS complexity 2 >>>  2  factors
+#The Velicer's MAP >>>  4  factors 
+#Empirical BIC >>>  9  factors
+#Sample Size adjusted BIC >>>  9  factors
+
+ratings_centered_longish %>% 
+  select(capable.leader:community.work) %>% 
+  psych::nfactors(n = 9)
+
+```
+
+
+# Examining Multiple Structural Solutions
+
+The two-component structure is comprised of the positive vs. negative characteristics.
+
+```{r two-components}
+        pca_2_component <- ratings_centered_longish %>% 
+                              select(capable.leader:community.work) %>% 
+                              psych::principal(., nfactors = 2, rotate = "varimax") 
+        
+        psych::kaiser(pca_2_component, rotate = "Varimax") %>% psych::fa.sort()
 
 
 ```
