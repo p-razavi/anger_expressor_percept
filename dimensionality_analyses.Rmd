@@ -52,10 +52,6 @@ Each participant provided multiple ratings. Before combining all the ratings int
 
 ```{r mean-centering}
 
-center_scale <- function(x) {
-    scale(x, scale = FALSE)
-}
-
 ratings_centered <- df_na_removed %>% 
                         select(inf_s_m_y_capable.leader:rud_o_f_y_community.work) %>% 
                         scale(., scale = FALSE) %>% 
@@ -131,15 +127,95 @@ ratings_centered_longish %>%
 
 # Examining Multiple Structural Solutions
 
-The two-component structure is comprised of the positive vs. negative characteristics.
+The two-component structure: positive vs. negative characteristics
 
-```{r two-components}
-        pca_2_component <- ratings_centered_longish %>% 
-                              select(capable.leader:community.work) %>% 
-                              psych::principal(., nfactors = 2, rotate = "varimax") 
+```{r two-component-str}
+pca_2_component <- ratings_centered_longish %>% 
+                        select(capable.leader:community.work) %>% 
+                        psych::principal(., nfactors = 2, rotate = "varimax") 
         
-        psych::kaiser(pca_2_component, rotate = "Varimax") %>% psych::fa.sort()
+two_comp_outcome <- psych::kaiser(pca_2_component, rotate = "Varimax") %>% psych::fa.sort()
 
+two_comp_outcome[["loadings"]] %>% 
+                  knitr::kable(digits = 2)
 
 ```
 
+
+```{r four-component-str}
+pca_4_component <- ratings_centered_longish %>% 
+                        select(capable.leader:community.work) %>% 
+                        psych::principal(., nfactors = 4, rotate = "varimax") 
+        
+four_comp_outcome <- psych::kaiser(pca_4_component, rotate = "Varimax") %>% psych::fa.sort()
+
+four_comp_outcome[["loadings"]] %>% 
+                  knitr::kable(digits = 2)
+```
+
+
+```{r five-component-str}
+pca_5_component <- ratings_centered_longish %>% 
+                        select(capable.leader:community.work) %>% 
+                        psych::principal(., nfactors = 5, rotate = "varimax") 
+        
+five_comp_outcome <- psych::kaiser(pca_5_component, rotate = "Varimax") %>% psych::fa.sort()
+
+five_comp_outcome[["loadings"]] %>% 
+                  knitr::kable(digits = 2)
+```
+
+6-component structure: Worth exploring further...
+
+```{r six-component-str}
+pca_6_component <- ratings_centered_longish %>% 
+                        select(capable.leader:community.work) %>% 
+                        psych::principal(., nfactors = 6, rotate = "varimax") 
+        
+six_comp_outcome <- psych::kaiser(pca_6_component, rotate = "Varimax") %>% psych::fa.sort()
+
+six_comp_outcome[["loadings"]] %>% 
+                  knitr::kable(digits = 2)
+```
+
+
+Not as good as the 8-component structure. Has a couple of components with a single item, and some cross-loading items.
+
+```{r seven-component-str}
+pca_7_component <- ratings_centered_longish %>% 
+                        select(capable.leader:community.work) %>% 
+                        psych::principal(., nfactors = 7, rotate = "varimax") 
+        
+seven_comp_outcome <- psych::kaiser(pca_7_component, rotate = "Varimax") %>% psych::fa.sort()
+
+seven_comp_outcome[["loadings"]] %>% 
+                  knitr::kable(digits = 2)
+```
+
+
+
+Compared to the 9-component structure, this has considerably fewer issues with cross-loading. And only one component will drop to less than 2 items after removing the cross-loading item. _A good candidate to explore further_
+
+```{r eight-component-str}
+pca_8_component <- ratings_centered_longish %>% 
+                        select(capable.leader:community.work) %>% 
+                        psych::principal(., nfactors = 8, rotate = "varimax") 
+        
+eight_comp_outcome <- psych::kaiser(pca_8_component, rotate = "Varimax") %>% psych::fa.sort()
+
+eight_comp_outcome[["loadings"]] %>% 
+                  knitr::kable(digits = 2)
+```
+
+9-component structure has multiple cross-loading items. Removing them will leave some components with less than 2 or 3 items.
+
+```{r nine-component-str}
+pca_9_component <- ratings_centered_longish %>% 
+                        select(capable.leader:community.work) %>% 
+                        psych::principal(., nfactors = 9, rotate = "varimax") 
+        
+nine_comp_outcome <- psych::kaiser(pca_9_component, rotate = "Varimax") %>% psych::fa.sort()
+
+nine_comp_outcome[["loadings"]] %>% 
+                  knitr::kable(digits = 2)
+```
