@@ -22,9 +22,6 @@ df <- readxl::read_xlsx("Perc_AngExpress_2datasets.xlsx")
 #reading in the variable names
 var_name_df <- readxl::read_xlsx("variable_names.xlsx")
 
-
-
-
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -86,40 +83,58 @@ ratings_centered_longish <- ratings_centered_longish %>%
 
 ```
 
+
+# Correlation between Ratings
+
+To avoid bloated specifics, lets find very highly correlated ratings (i.e., r > .65).
+
+```{r intercorrelations}
+ratings_centered_longish %>% 
+  select(capable.leader:community.work) %>% 
+  rstatix::cor_mat() %>% 
+  rstatix::cor_gather(drop.na = TRUE) %>% 
+  mutate(strong_cor = if_else(cor >= .65, "yes", "no")) %>% 
+  filter(strong_cor == "yes" & cor < 1)
+```
+
+"Brave" and "capable of leadership" are highly correlated; so are "honorable" and "noble." From the first pair, I'll keep "brave," and from the second one, I'll keep "honorable."
+
 # Determining the Number of Factors
 
 Determining the optimal number of factors using screeplot, parallel analyses and other methods from the _psych_ package. Different methods suggest that 2-, 4-, and 9-factor structures are plausible solutions.
 
+## Scree plot
+
 ```{r scree-plot}
-#seems like 4- or 5- factors are reasonable solutions
+#seems like 4- or 5- factors or components are reasonable solutions
 ratings_centered_longish %>% 
   select(capable.leader:community.work) %>% 
+  select(!c(capable.leader, noble)) %>% 
   psych::scree()
 
 ```
 
-
+## Parallel analysis
 
 ```{r parallel-analysis}
-#Parallel analysis suggests that the number of factors =  9  and the number of components =  4 
+#Parallel analysis suggests that the number of factors =  8  and the number of components =  4 
 ratings_centered_longish %>% 
   select(capable.leader:community.work) %>% 
+  select(!c(capable.leader, noble)) %>% 
   psych::fa.parallel()
 
 
 ```
 
+## Velicor's MAP
 
 ```{r velicor-VSS}
 
-#VSS complexity 1 >>>  1  factors
-#VSS complexity 2 >>>  2  factors
-#The Velicer's MAP >>>  4  factors 
-#Empirical BIC >>>  9  factors
-#Sample Size adjusted BIC >>>  9  factors
+#The Velicer's MAP suggests a 4-factor structure. Other methods suggest up to 9 components 
 
 ratings_centered_longish %>% 
   select(capable.leader:community.work) %>% 
+  select(!c(capable.leader, noble)) %>% 
   psych::nfactors(n = 9)
 
 ```
@@ -127,95 +142,270 @@ ratings_centered_longish %>%
 
 # Examining Multiple Structural Solutions
 
-The two-component structure: positive vs. negative characteristics
+Based on what the previous analyses, we should examine different structures ranging from 2- to 9-component solutions.
+
+## 2 components
+
+The two-component structure boils down to positive vs. negative characteristics.
 
 ```{r two-component-str}
 pca_2_component <- ratings_centered_longish %>% 
                         select(capable.leader:community.work) %>% 
+                        select(!c(capable.leader, noble)) %>% 
                         psych::principal(., nfactors = 2, rotate = "varimax") 
         
 two_comp_outcome <- psych::kaiser(pca_2_component, rotate = "Varimax") %>% psych::fa.sort()
 
 two_comp_outcome[["loadings"]] %>% 
-                  knitr::kable(digits = 2)
+                  knitr::kable(digits = 2) %>%
+                  kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>% 
+                  kableExtra::kable_paper(full_width = F)
 
 ```
 
+## 3 components
+
+```{r three-component-str}
+pca_3_component <- ratings_centered_longish %>% 
+                        select(capable.leader:community.work) %>% 
+                        select(!c(capable.leader, noble)) %>% 
+                        psych::principal(., nfactors = 3, rotate = "varimax") 
+        
+three_comp_outcome <- psych::kaiser(pca_3_component, rotate = "Varimax") %>% psych::fa.sort()
+
+three_comp_outcome[["loadings"]] %>% 
+                  knitr::kable(digits = 2) %>%
+                  kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>% 
+                  kableExtra::kable_paper(full_width = F)
+```
+
+
+## 4 components
+
+We see a clearly interpretable set of components here. Consistent with the scree test and Velicor's MAP, it seems that the four-component structure is sensible.
 
 ```{r four-component-str}
 pca_4_component <- ratings_centered_longish %>% 
                         select(capable.leader:community.work) %>% 
+                        select(!c(capable.leader, noble)) %>% 
                         psych::principal(., nfactors = 4, rotate = "varimax") 
         
 four_comp_outcome <- psych::kaiser(pca_4_component, rotate = "Varimax") %>% psych::fa.sort()
 
 four_comp_outcome[["loadings"]] %>% 
-                  knitr::kable(digits = 2)
+                  knitr::kable(digits = 2) %>%
+                  kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>% 
+                  kableExtra::kable_paper(full_width = F)
 ```
+
+
+```{r four-component-str-v2}
+pca_4_component_v2 <- ratings_centered_longish %>% 
+                        select(capable.leader:community.work) %>% 
+                        select(!c(capable.leader, noble)) %>% 
+                        select(!c(modest)) %>% 
+                        psych::principal(., nfactors = 4, rotate = "varimax") 
+        
+four_comp_outcome_v2 <- psych::kaiser(pca_4_component_v2, rotate = "Varimax") %>% psych::fa.sort()
+
+four_comp_outcome_v2[["loadings"]] %>% 
+                  knitr::kable(digits = 2) %>%
+                  kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>% 
+                  kableExtra::kable_paper(full_width = F)
+```
+
+
+```{r four-component-str-v3}
+pca_4_component_v3 <- ratings_centered_longish %>% 
+                        select(capable.leader:community.work) %>% 
+                        select(!c(capable.leader, noble)) %>% 
+                        select(!c(modest, religious)) %>% 
+                        psych::principal(., nfactors = 4, rotate = "varimax") 
+        
+four_comp_outcome_v3 <- psych::kaiser(pca_4_component_v3, rotate = "Varimax") %>% psych::fa.sort()
+
+four_comp_outcome_v3[["loadings"]] %>% 
+                  knitr::kable(digits = 2) %>%
+                  kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>% 
+                  kableExtra::kable_paper(full_width = F)
+```
+
+## 5 components
+
+We start to see the potential signs of over-factoring here. The last component consists of only 1 item.
 
 
 ```{r five-component-str}
 pca_5_component <- ratings_centered_longish %>% 
                         select(capable.leader:community.work) %>% 
+                        select(!c(capable.leader, noble)) %>% 
                         psych::principal(., nfactors = 5, rotate = "varimax") 
         
 five_comp_outcome <- psych::kaiser(pca_5_component, rotate = "Varimax") %>% psych::fa.sort()
 
 five_comp_outcome[["loadings"]] %>% 
-                  knitr::kable(digits = 2)
+                  knitr::kable(digits = 2) %>%
+                  kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>% 
+                  kableExtra::kable_paper(full_width = F)
 ```
 
-6-component structure: Worth exploring further...
+## 6 components 
+
+We see more indications of potential over-factoring. This time, the fifth component consists of a single item (i.e., "indifferent"), and there's an increase in the number of cross-loading items.
 
 ```{r six-component-str}
 pca_6_component <- ratings_centered_longish %>% 
                         select(capable.leader:community.work) %>% 
+                        select(!c(capable.leader, noble)) %>% 
                         psych::principal(., nfactors = 6, rotate = "varimax") 
         
 six_comp_outcome <- psych::kaiser(pca_6_component, rotate = "Varimax") %>% psych::fa.sort()
 
 six_comp_outcome[["loadings"]] %>% 
-                  knitr::kable(digits = 2)
+                  knitr::kable(digits = 2) %>%
+                  kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>% 
+                  kableExtra::kable_paper(full_width = F)
 ```
 
+## 7 components
 
-Not as good as the 8-component structure. Has a couple of components with a single item, and some cross-loading items.
+Has a couple of components with a single item, and some cross-loading items.
 
 ```{r seven-component-str}
 pca_7_component <- ratings_centered_longish %>% 
-                        select(capable.leader:community.work) %>% 
+                        select(capable.leader:community.work) %>%
+                        select(!c(capable.leader, noble)) %>%  
                         psych::principal(., nfactors = 7, rotate = "varimax") 
         
 seven_comp_outcome <- psych::kaiser(pca_7_component, rotate = "Varimax") %>% psych::fa.sort()
 
 seven_comp_outcome[["loadings"]] %>% 
-                  knitr::kable(digits = 2)
+                  knitr::kable(digits = 2) %>%
+                  kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>% 
+                  kableExtra::kable_paper(full_width = F)
 ```
 
+## 8 components
 
-
-Compared to the 9-component structure, this has considerably fewer issues with cross-loading. And only one component will drop to less than 2 items after removing the cross-loading item. _A good candidate to explore further_
+Cross-loading items keep increasing.
 
 ```{r eight-component-str}
 pca_8_component <- ratings_centered_longish %>% 
                         select(capable.leader:community.work) %>% 
+                        select(!c(capable.leader, noble)) %>% 
                         psych::principal(., nfactors = 8, rotate = "varimax") 
         
 eight_comp_outcome <- psych::kaiser(pca_8_component, rotate = "Varimax") %>% psych::fa.sort()
 
 eight_comp_outcome[["loadings"]] %>% 
-                  knitr::kable(digits = 2)
+                  knitr::kable(digits = 2) %>%
+                  kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>% 
+                  kableExtra::kable_paper(full_width = F)
+
 ```
 
-9-component structure has multiple cross-loading items. Removing them will leave some components with less than 2 or 3 items.
+
+## 9 components
+
+9-component structure has multiple cross-loading item; removing them will leave some components with a single item. Potential indications that too many components are extracted.
 
 ```{r nine-component-str}
 pca_9_component <- ratings_centered_longish %>% 
-                        select(capable.leader:community.work) %>% 
+                        select(capable.leader:community.work) %>%
+                        select(!c(capable.leader, noble)) %>%  
                         psych::principal(., nfactors = 9, rotate = "varimax") 
         
 nine_comp_outcome <- psych::kaiser(pca_9_component, rotate = "Varimax") %>% psych::fa.sort()
 
 nine_comp_outcome[["loadings"]] %>% 
-                  knitr::kable(digits = 2)
+                  knitr::kable(digits = 2) %>%
+                  kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>% 
+                  kableExtra::kable_paper(full_width = F)
 ```
+
+# Optimal Structure
+
+Considering these results, it seems that the following 4-component structure is the most interpretable, and fewer issues in terms of number of items per dimension and cross-loading items.
+
+## Loadings 
+
+```{r four-comp-item-loadings}
+four_comp_outcome_v3[["loadings"]] %>% 
+                  knitr::kable(digits = 2) %>%
+                  kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>% 
+                  kableExtra::kable_paper(full_width = F)
+```
+
+## Visualization
+
+```{r four-comp-visual, fig.height=9, fig.width=10}
+four_comp_df <- four_comp_outcome_v3[["loadings"]] %>% 
+            as.data.frame() %>% 
+            tibble::rownames_to_column(., "Trait")
+
+four_comp_df$Trait <- factor(four_comp_df$Trait, levels = four_comp_df$Trait) #this is needed to that ggplot doesn't rearrange the order of rating items alphabetically
+
+four_comp_df_long <- four_comp_df %>% 
+                          tidyr::pivot_longer(data = .,
+                                cols = starts_with("RC"),
+                                names_to = "Component",
+                                values_to = "Loading")
+
+four_comp_df_long %>% 
+  ggplot(aes(x = Trait, y = Loading, fill = Component)) +
+        geom_bar(stat = "identity") +
+        scale_x_discrete(limits = rev(levels(four_comp_df$Trait))) +#reverse the order of the item labels
+        facet_wrap(~Component) +
+        coord_flip()
+
+
+#in case you want to try a different method where each component is graphed separately
+comp1_fig <- four_comp_df %>% 
+                ggplot(aes(x = Trait, y = RC1)) +
+                geom_bar(stat = "identity") +
+                scale_x_discrete(limits = rev(levels(four_comp_df$Trait))) + #reverse the order of the item labels
+                coord_flip() 
+
+
+```
+
+## Scoring and reliability
+
+```{r scoring-reliability}
+
+ratings_longish <- df_na_removed %>% 
+                              #tibble::rowid_to_column() %>% 
+                              tidyr::pivot_longer(data = .,
+                                                  cols = inf_s_m_y_capable.leader:rud_o_f_y_community.work) %>% 
+                              separate(name, c("senario", "harm_target", "prot_gender", "anger_express", "col"), 
+                                       sep = "_") %>% 
+                              tidyr::pivot_wider(data = .,
+                                                 names_from = col,
+                                                 values_from = value)
+                              
+
+#remove the row where all ratings are NA
+ratings_longish <- ratings_longish %>% 
+                                  dplyr::filter(!if_all(c(capable.leader, community.work), is.na))
+
+
+
+ratings_key <- list(
+  social_conscience = c("helpful.others", "willing.sacrifice", "admired", "respected", "community.work",
+                        "loyal.truehearted", "grateful", "honorable", "keeps.promises", "values.relations",
+                        "virtuous", "fits.customs"),
+  steadfastness = c("not.allow.oppress", "high.selfesteem", "not.compromise.principles", "honest", "brave",
+                    "persistent.steadfast", "-indifferent"),
+  wisdom = c("acts.calculated", "has.selfcontrol", "wise", "intellectual"),
+  obstinacy = c("pessimistic.suspicious", "holds.grudges", "stubborn", "dogmatic", "hypocrite")
+)
+
+#calculate scale scores
+      judgment.categories <- psych::scoreItems(ratings_key, ratings_longish, impute = "none")
+#internal consistencies and intercorrelations
+      judgment.categories
+
+ratings_longish <- cbind(ratings_longish, judgment.categories$scores) 
+
+```
+
