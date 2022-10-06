@@ -1,0 +1,49 @@
+---
+title: "Dimensionality Analyses of the Character Judgments"
+author: "Pooya Razavi"
+date: "last knitted: `r Sys.time()`"
+output: 
+  html_document:
+    theme: cosmo
+    highlight: textmate
+    toc: TRUE
+    toc_float: TRUE
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r import-data, include=FALSE}
+library(tidyverse)
+
+#read in the datafile
+df <- readxl::read_xlsx("Perc_AngExpress_2datasets.xlsx")
+
+
+#reading in the variable names
+var_name_df <- readxl::read_xlsx("variable_names.xlsx")
+
+
+
+
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r data-cleaning}
+#remove rows that are all NAs
+df_na_removed <- df %>% 
+                    dplyr::filter(!if_all(c(Q20_1, Q70), is.na))
+
+#the original column names (imported from Qualtrics) 
+dplyr::glimpse(df[,1:20])
+
+
+#use the variable names (from the external file) to rename data columns from Qualtrics labels to the character judgments
+colnames(df_na_removed) <- var_name_df$var_name
+
+
+#now the column names are easier to follow
+dplyr::glimpse(df[,1:20])
+
+```
+
