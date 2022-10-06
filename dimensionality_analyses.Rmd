@@ -47,3 +47,45 @@ dplyr::glimpse(df[,1:20])
 
 ```
 
+Each participant provided multiple ratings. Before combining all the ratings into a long format, we want to mean-center them, because we don't want mean differences between the conditions to artificially influence the factor structure. Below, I'll create a dataframe with mean-centered ratings just for the dimensionality analyses.
+
+```{r mean-centering}
+
+center_scale <- function(x) {
+    scale(x, scale = FALSE)
+}
+
+ratings_centered <- df_na_removed %>% 
+                        select(inf_s_m_y_capable.leader:rud_o_f_y_community.work) %>% 
+                        scale(., scale = FALSE) %>% 
+                        as_tibble()
+
+
+#check a couple of columns to show that the mean is indeed zero 
+mean(ratings_centered$inf_s_m_y_capable.leader, na.rm = TRUE)
+mean(ratings_centered$rud_s_f_n_loyal.truehearted, na.rm = TRUE)
+```
+
+
+
+
+```{r long-ish-df}
+
+ratings_centered_longish <- ratings_centered %>% 
+                              tibble::rowid_to_column() %>% 
+                              tidyr::pivot_longer(data = .,
+                                                  cols = !rowid) %>% 
+                              separate(name, c("senario", "harm_target", "prot_gender", "anger_express", "col"), 
+                                       sep = "_") %>% 
+                              tidyr::pivot_wider(data = .,
+                                                 names_from = col,
+                                                 values_from = value)
+                              
+
+#remove the row where all ratings are NA
+ratings_centered_longish <- ratings_centered_longish %>% 
+                                  dplyr::filter(!if_all(c(capable.leader, community.work), is.na))
+
+
+```
+
