@@ -1,0 +1,87 @@
+---
+title: "Testing the models"
+author: "Pooya Razavi"
+date: "2022-10-07"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lmerTest)
+library(sjPlot)
+library(sjmisc)
+library(emmeans)
+
+df <- read.csv("Perc_AngExpress_longish_scored.csv")
+
+#a dataframe with only the relevant variables, and predictors as factors
+df2 <- df %>% 
+            select(duration, response_id, scenario, harm_target, prot_gender, anger_express, 
+                   social_conscience, steadfastness, wisdom, obstinacy) %>% 
+            mutate_if(sapply(., is.character), as.factor)          
+  as.factor(scenario, harm_target, prot_gender, anger_express)
+
+
+knitr::opts_chunk$set(echo = TRUE, emm_options(pbkrtest.limit = 4000))
+```
+
+# Outcome: Social Conscience
+
+```{r social-consc}
+#descriptives
+    #main effects
+    psych::describeBy(df2$social_conscience, group = df2$anger_express)
+    psych::describeBy(df2$social_conscience, group = df2$harm_target)
+    psych::describeBy(df2$social_conscience, group = df2$prot_gender)
+    #interactions
+    psych::describeBy(df2$social_conscience, group = list(df2$anger_express, df2$harm_target))
+    
+    
+#setting the contrasts
+    contrasts(df2$harm_target) <- contr.sum
+    contrasts(df2$prot_gender) <- contr.sum
+    contrasts(df2$anger_express) <- contr.sum
+
+#omnibus model
+    social_conscience_m1 <- lmer(social_conscience ~ harm_target * prot_gender * anger_express + (1 | response_id),
+                                 data = df2)
+    anova(social_conscience_m1)
+
+#first research question
+    emmeans(social_conscience_m1, pairwise ~ harm_target | anger_express)
+    
+#visualization
+    #visual 1
+    emmip(social_conscience_m1, anger_express ~ harm_target) #one way to visualize the interaction
+    
+    #visual 2
+    plot_model(social_conscience_m1, type = "pred", terms = c("harm_target", "anger_express"),
+               title = "Outcome: Social Conscience",
+               axis.title = c("Target of Harm", "Rating of Social Conscience"),
+               legend.title = "Anger Expressed",
+               axis.lim = c(1,5)) +
+                theme_bw()
+    
+    
+#visualize the interactions
+    plot_model(social_conscience_m1, type = "pred", terms = c("harm_target", "prot_gender", "anger_express"))  
+    
+    plot_model(social_conscience_m1, type = "pred", terms = c("harm_target", "prot_gender"),
+               title = "Outcome: Social Conscience",
+               axis.title = c("Target of Harm", "Rating of Social Conscience"),
+               legend.title = "Protagonist's Gender",
+               axis.lim = c(1,5))
+    
+    
+    
+    plot_model(social_conscience_m1, type = "pred", terms = c("prot_gender", "anger_express"),
+               axis.title = c("Protagonist's Gender", "Rating of Social Conscience"),
+               legend.title = "Anger Expressed",
+               axis.lim = c(1,5))
+
+    
+
+```
+
