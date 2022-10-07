@@ -69,7 +69,7 @@ ratings_centered_longish <- ratings_centered %>%
                               tibble::rowid_to_column() %>% 
                               tidyr::pivot_longer(data = .,
                                                   cols = !rowid) %>% 
-                              separate(name, c("senario", "harm_target", "prot_gender", "anger_express", "col"), 
+                              separate(name, c("scenario", "harm_target", "prot_gender", "anger_express", "col"), 
                                        sep = "_") %>% 
                               tidyr::pivot_wider(data = .,
                                                  names_from = col,
@@ -377,7 +377,7 @@ ratings_longish <- df_na_removed %>%
                               #tibble::rowid_to_column() %>% 
                               tidyr::pivot_longer(data = .,
                                                   cols = inf_s_m_y_capable.leader:rud_o_f_y_community.work) %>% 
-                              separate(name, c("senario", "harm_target", "prot_gender", "anger_express", "col"), 
+                              separate(name, c("scenario", "harm_target", "prot_gender", "anger_express", "col"), 
                                        sep = "_") %>% 
                               tidyr::pivot_wider(data = .,
                                                  names_from = col,
