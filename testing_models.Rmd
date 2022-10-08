@@ -484,5 +484,418 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
                 theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
                 scale_fill_manual(values=met.brewer("Nizami", 2, direction=-1))
               
+```
+
+
+
+# Outcome: Wisdom
+
+## Descriptives
+
+```{r wisd-descript}
+#descriptives
+    #main effects
+    psych::describeBy(df2$wisdom, group = df2$anger_express, mat = TRUE) %>% knitr::kable(digits = 2, format = "pipe")
+    psych::describeBy(df2$wisdom, group = df2$harm_target, mat = TRUE) %>% knitr::kable(digits = 2, format = "pipe")
+    psych::describeBy(df2$wisdom, group = df2$prot_gender, mat = TRUE) %>% knitr::kable(digits = 2, format = "pipe")
+    
+    #interactions
+    psych::describeBy(df2$wisdom, 
+                      group = list(df2$anger_express, df2$harm_target), mat = TRUE) %>% 
+      knitr::kable(digits = 2, format = "pipe")
+    
+    psych::describeBy(df2$wisdom, 
+                      group = list(df2$anger_express, df2$prot_gender), mat = TRUE) %>% 
+      knitr::kable(digits = 2, format = "pipe")
+    
+    psych::describeBy(df2$wisdom, 
+                      group = list(df2$anger_express, df2$harm_target, df2$prot_gender), mat = TRUE) %>% 
+      knitr::kable(digits = 2, format = "pipe")
+    
+```
+
+## The models
+
+### Omnibus
+
+```{r wisd-model0}
+#setting the contrasts
+    contrasts(df2$harm_target) <- contr.sum
+    contrasts(df2$prot_gender) <- contr.sum
+    contrasts(df2$anger_express) <- contr.sum
+
+#omnibus model
+    wisdom_m1 <- lmer(wisdom ~ harm_target * prot_gender * anger_express + (1 | response_id),
+                                 data = df2)
+    anova(wisdom_m1)
+    #pander::pander( anova( wisdom_m1 ) ) 
+```
+
+
+### First research question
+
+```{r wisd-model1}
+    emmeans(wisdom_m1, pairwise ~ anger_express | harm_target)
+```    
+
+### Second research question
+
+```{r wisd-model2}
+    emmeans(wisdom_m1, pairwise ~ prot_gender | anger_express)    
+```
+
+
+### Third research question
+
+```{r wisd-models3}
+    emmeans(wisdom_m1, pairwise ~  anger_express | harm_target * prot_gender)    
+
+```
+
+## Figures 
+
+### Research Question 1
+
+```{r wisd-visuals-rq1, fig.align='center', fig.width=5}
+#research question 1  
+    
+    #getting mean and se for the graph
+    descripts <- psych::describeBy(df2$wisdom, 
+                                   group = list(df2$anger_express, df2$harm_target), mat = TRUE) %>% 
+                  select(group1, group2, mean, se) %>% 
+                  transmute(Expression = group1,
+                            Target = group2,
+                            mean, se)
+    
+    
+     #interaction plot - dot-whiskers and lines
+              ggplot(
+                descripts,
+                aes(x = Target, color = Expression, group = Expression, y = mean,
+                    ymin = mean-se, ymax = mean+se)) + 
+                geom_line(position = position_dodge(0.3)) +
+                geom_errorbar(position = position_dodge(0.3), width = 0.2) +
+                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
+                ylim(1, 5) +
+                theme_bw() + 
+                ggtitle("Wisdom") +
+                labs(y="Rating of Protagonist's Wisdom", x = "Target of Harm", color = "Anger Expressed") +
+                theme(plot.title = element_text(hjust = 0.5))
+
+      #interaction plot - bar plot
+              ggplot(
+                descripts,
+                aes(x = Target, fill = Expression, group = Expression, y = mean,
+                    ymin = mean-se, ymax = mean+se)) +
+                geom_col(position = position_dodge(width=0.7), width = .6) +
+                geom_errorbar(position = position_dodge(width=0.7), width = 0.15) +
+                #facet_wrap(~Target) +
+                scale_y_continuous(limits = c(1, 5), oob = scales::squish) +
+                theme_bw() + 
+                ggtitle("Wisdom") +
+                labs(y="Rating of Protagonist's Wisdom", x = "Target of Harm", fill = "Anger Expressed") +
+                theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
+                scale_fill_manual(values=met.brewer("Nizami", 2, direction=-1))
+
+
+```
+
+
+### Research question 2  
+
+```{r wisd-visuals-rq2, fig.align='center', fig.width=5}
+    #getting mean and se for the graph
+    descripts <- psych::describeBy(df2$wisdom, 
+                                   group = list(df2$anger_express, df2$prot_gender), mat = TRUE) %>% 
+                  select(group1, group2, mean, se) %>% 
+                  transmute(Expression = group1,
+                            Gender = group2,
+                            mean, se)
+    
+    
+     #interaction plot - dot-whiskers and lines
+              ggplot(
+                descripts,
+                aes(x = Gender, color = Expression, group = Expression, y = mean,
+                    ymin = mean-se, ymax = mean+se)) + 
+                geom_line(position = position_dodge(0.3)) +
+                geom_errorbar(position = position_dodge(0.3), width = 0.2) +
+                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
+                ylim(1, 5) +
+                theme_bw() + 
+                ggtitle("Wisdom") +
+                labs(y="Rating of Protagonist's Wisdom", x = "Protagonist's Gender", color = "Anger Expressed") +
+                theme(plot.title = element_text(hjust = 0.5))
+
+              
+      #interaction plot - bar plot
+              ggplot(
+                descripts,
+                aes(x = Gender, fill = Expression, group = Expression, y = mean,
+                    ymin = mean-se, ymax = mean+se)) +
+                geom_col(position = position_dodge(width=0.7), width = .6) +
+                geom_errorbar(position = position_dodge(width=0.7), width = 0.15) +
+                #facet_wrap(~Target) +
+                scale_y_continuous(limits = c(1, 5), oob = scales::squish) +
+                theme_bw() + 
+                ggtitle("Wisdom") +
+                labs(y="Rating of Protagonist's Wisdom", x = "Protagonist's Gender", fill = "Anger Expressed") +
+                theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
+                scale_fill_manual(values=met.brewer("Nizami", 2, direction=-1))    
+
+```
+
+
+### Research question 3
+
+```{r wisd-visuals-rq3, fig.align='center', fig.width=7}
+    #getting mean and se for the graph
+      descripts <- psych::describeBy(df2$wisdom, 
+                         group = list(df2$anger_express, df2$harm_target, df2$prot_gender), mat = TRUE)   %>% 
+                        select(group1, group2, group3, mean, se) %>% 
+                        transmute(Expression = group1,
+                                  Target = group2,
+                                  Gender = group3,
+                                  mean, se)      
+
+      
+     #interaction plot - dot-whiskers and lines
+              ggplot(
+                descripts,
+                aes(x = Gender, color = Expression, group = Expression, y = mean,
+                    ymin = mean-se, ymax = mean+se)) + 
+                facet_wrap(~Target) +
+                geom_line(position = position_dodge(0.3)) +
+                geom_errorbar(position = position_dodge(0.3), width = 0.15) +
+                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
+                ylim(1, 5) +
+                theme_bw() + 
+                ggtitle("Wisdom") +
+                labs(y="Rating of Protagonist's Wisdom", x = "Protagonist's Gender", color = "Anger Expressed") +
+                theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10))      
+
+      #ggsave('wisdom_3way.png',dpi=600) #this code will save a high resolution version of the figure
+      
+      #interaction plot - bar plot                
+              ggplot(
+                descripts,
+                aes(x = Gender, fill = Expression, group = Expression, y = mean,
+                    ymin = mean-se, ymax = mean+se)) +
+                geom_col(position = position_dodge(width=0.7), width = .6) +
+                geom_errorbar(position = position_dodge(width=0.7), width = 0.15) +
+                facet_wrap(~Target) +
+                scale_y_continuous(limits = c(1, 5), oob = scales::squish) +
+                theme_bw() + 
+                ggtitle("Wisdom") +
+                labs(y="Rating of Protagonist's Wisdom", x = "Protagonist's Gender", fill = "Anger Expressed") +
+                theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
+                scale_fill_manual(values=met.brewer("Nizami", 2, direction=-1))
+              
+```
+
+
+
+# Outcome: Obstinacy
+
+## Descriptives
+
+```{r obstin-descript}
+#descriptives
+    #main effects
+    psych::describeBy(df2$obstinacy, group = df2$anger_express, mat = TRUE) %>% knitr::kable(digits = 2, format = "pipe")
+    psych::describeBy(df2$obstinacy, group = df2$harm_target, mat = TRUE) %>% knitr::kable(digits = 2, format = "pipe")
+    psych::describeBy(df2$obstinacy, group = df2$prot_gender, mat = TRUE) %>% knitr::kable(digits = 2, format = "pipe")
+    
+    #interactions
+    psych::describeBy(df2$obstinacy, 
+                      group = list(df2$anger_express, df2$harm_target), mat = TRUE) %>% 
+      knitr::kable(digits = 2, format = "pipe")
+    
+    psych::describeBy(df2$obstinacy, 
+                      group = list(df2$anger_express, df2$prot_gender), mat = TRUE) %>% 
+      knitr::kable(digits = 2, format = "pipe")
+    
+    psych::describeBy(df2$obstinacy, 
+                      group = list(df2$anger_express, df2$harm_target, df2$prot_gender), mat = TRUE) %>% 
+      knitr::kable(digits = 2, format = "pipe")
+    
+```
+
+## The models
+
+### Omnibus
+
+```{r obstin-model0}
+#setting the contrasts
+    contrasts(df2$harm_target) <- contr.sum
+    contrasts(df2$prot_gender) <- contr.sum
+    contrasts(df2$anger_express) <- contr.sum
+
+#omnibus model
+    obstinacy_m1 <- lmer(obstinacy ~ harm_target * prot_gender * anger_express + (1 | response_id),
+                                 data = df2)
+    anova(obstinacy_m1)
+    #pander::pander( anova( obstinacy_m1 ) ) 
+```
+
+
+### First research question
+
+```{r obstin-model1}
+    emmeans(obstinacy_m1, pairwise ~ anger_express | harm_target)
+```    
+
+### Second research question
+
+```{r obstin-model2}
+    emmeans(obstinacy_m1, pairwise ~ prot_gender | anger_express)    
+```
+
+
+### Third research question
+
+```{r obstin-models3}
+    emmeans(obstinacy_m1, pairwise ~  anger_express | harm_target * prot_gender)    
+
+```
+
+## Figures 
+
+### Research Question 1
+
+```{r obstin-visuals-rq1, fig.align='center', fig.width=5}
+#research question 1  
+    
+    #getting mean and se for the graph
+    descripts <- psych::describeBy(df2$obstinacy, 
+                                   group = list(df2$anger_express, df2$harm_target), mat = TRUE) %>% 
+                  select(group1, group2, mean, se) %>% 
+                  transmute(Expression = group1,
+                            Target = group2,
+                            mean, se)
+    
+    
+     #interaction plot - dot-whiskers and lines
+              ggplot(
+                descripts,
+                aes(x = Target, color = Expression, group = Expression, y = mean,
+                    ymin = mean-se, ymax = mean+se)) + 
+                geom_line(position = position_dodge(0.3)) +
+                geom_errorbar(position = position_dodge(0.3), width = 0.2) +
+                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
+                ylim(1, 5) +
+                theme_bw() + 
+                ggtitle("Obstinacy") +
+                labs(y="Rating of Protagonist's Obstinacy", x = "Target of Harm", color = "Anger Expressed") +
+                theme(plot.title = element_text(hjust = 0.5))
+
+      #interaction plot - bar plot
+              ggplot(
+                descripts,
+                aes(x = Target, fill = Expression, group = Expression, y = mean,
+                    ymin = mean-se, ymax = mean+se)) +
+                geom_col(position = position_dodge(width=0.7), width = .6) +
+                geom_errorbar(position = position_dodge(width=0.7), width = 0.15) +
+                #facet_wrap(~Target) +
+                scale_y_continuous(limits = c(1, 5), oob = scales::squish) +
+                theme_bw() + 
+                ggtitle("Obstinacy") +
+                labs(y="Rating of Protagonist's Obstinacy", x = "Target of Harm", fill = "Anger Expressed") +
+                theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
+                scale_fill_manual(values=met.brewer("Nizami", 2, direction=-1))
+
+
+```
+
+
+### Research question 2  
+
+```{r obstin-visuals-rq2, fig.align='center', fig.width=5}
+    #getting mean and se for the graph
+    descripts <- psych::describeBy(df2$obstinacy, 
+                                   group = list(df2$anger_express, df2$prot_gender), mat = TRUE) %>% 
+                  select(group1, group2, mean, se) %>% 
+                  transmute(Expression = group1,
+                            Gender = group2,
+                            mean, se)
+    
+    
+     #interaction plot - dot-whiskers and lines
+              ggplot(
+                descripts,
+                aes(x = Gender, color = Expression, group = Expression, y = mean,
+                    ymin = mean-se, ymax = mean+se)) + 
+                geom_line(position = position_dodge(0.3)) +
+                geom_errorbar(position = position_dodge(0.3), width = 0.2) +
+                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
+                ylim(1, 5) +
+                theme_bw() + 
+                ggtitle("Obstinacy") +
+                labs(y="Rating of Protagonist's Obstinacy", x = "Protagonist's Gender", color = "Anger Expressed") +
+                theme(plot.title = element_text(hjust = 0.5))
+
+              
+      #interaction plot - bar plot
+              ggplot(
+                descripts,
+                aes(x = Gender, fill = Expression, group = Expression, y = mean,
+                    ymin = mean-se, ymax = mean+se)) +
+                geom_col(position = position_dodge(width=0.7), width = .6) +
+                geom_errorbar(position = position_dodge(width=0.7), width = 0.15) +
+                #facet_wrap(~Target) +
+                scale_y_continuous(limits = c(1, 5), oob = scales::squish) +
+                theme_bw() + 
+                ggtitle("Obstinacy") +
+                labs(y="Rating of Protagonist's Obstinacy", x = "Protagonist's Gender", fill = "Anger Expressed") +
+                theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
+                scale_fill_manual(values=met.brewer("Nizami", 2, direction=-1))    
+
+```
+
+
+### Research question 3
+
+```{r obstin-visuals-rq3, fig.align='center', fig.width=7}
+    #getting mean and se for the graph
+      descripts <- psych::describeBy(df2$obstinacy, 
+                         group = list(df2$anger_express, df2$harm_target, df2$prot_gender), mat = TRUE)   %>% 
+                        select(group1, group2, group3, mean, se) %>% 
+                        transmute(Expression = group1,
+                                  Target = group2,
+                                  Gender = group3,
+                                  mean, se)      
+
+      
+     #interaction plot - dot-whiskers and lines
+              ggplot(
+                descripts,
+                aes(x = Gender, color = Expression, group = Expression, y = mean,
+                    ymin = mean-se, ymax = mean+se)) + 
+                facet_wrap(~Target) +
+                geom_line(position = position_dodge(0.3)) +
+                geom_errorbar(position = position_dodge(0.3), width = 0.15) +
+                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
+                ylim(1, 5) +
+                theme_bw() + 
+                ggtitle("Obstinacy") +
+                labs(y="Rating of Protagonist's Obstinacy", x = "Protagonist's Gender", color = "Anger Expressed") +
+                theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10))      
+
+      #ggsave('obstinacy_3way.png',dpi=600) #this code will save a high resolution version of the figure
+      
+      #interaction plot - bar plot                
+              ggplot(
+                descripts,
+                aes(x = Gender, fill = Expression, group = Expression, y = mean,
+                    ymin = mean-se, ymax = mean+se)) +
+                geom_col(position = position_dodge(width=0.7), width = .6) +
+                geom_errorbar(position = position_dodge(width=0.7), width = 0.15) +
+                facet_wrap(~Target) +
+                scale_y_continuous(limits = c(1, 5), oob = scales::squish) +
+                theme_bw() + 
+                ggtitle("Obstinacy") +
+                labs(y="Rating of Protagonist's Obstinacy", x = "Protagonist's Gender", fill = "Anger Expressed") +
+                theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
+                scale_fill_manual(values=met.brewer("Nizami", 2, direction=-1))
               
 ```
