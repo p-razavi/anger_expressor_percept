@@ -130,12 +130,12 @@ ratings_centered_longish %>%
 
 ```{r velicor-VSS}
 
-#The Velicer's MAP suggests a 4-factor structure. Other methods suggest up to 9 components 
+#The Velicer's MAP suggests a 4-factor structure. Other methods suggest up to 10 components 
 
 ratings_centered_longish %>% 
   select(capable.leader:community.work) %>% 
   select(!c(capable.leader, noble)) %>% 
-  psych::nfactors(n = 9)
+  psych::nfactors(n = 30)
 
 ```
 
@@ -318,6 +318,25 @@ pca_9_component <- ratings_centered_longish %>%
 nine_comp_outcome <- psych::kaiser(pca_9_component, rotate = "Varimax") %>% psych::fa.sort()
 
 nine_comp_outcome[["loadings"]] %>% 
+                  knitr::kable(digits = 2) %>%
+                  kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>% 
+                  kableExtra::kable_paper(full_width = F)
+```
+
+
+## 10 components
+
+10-component structure has at least 3 single-item components, and multiple cross-loading items; removing the cross-loading items will leave even more components with a single item. Potential indications that too many components are extracted.
+
+```{r ten-component-str}
+pca_10_component <- ratings_centered_longish %>% 
+                        select(capable.leader:community.work) %>%
+                        select(!c(capable.leader, noble)) %>%  
+                        psych::principal(., nfactors = 10, rotate = "varimax") 
+        
+ten_comp_outcome <- psych::kaiser(pca_10_component, rotate = "Varimax") %>% psych::fa.sort()
+
+ten_comp_outcome[["loadings"]] %>% 
                   knitr::kable(digits = 2) %>%
                   kableExtra::kable_styling(bootstrap_options = c("striped", "hover")) %>% 
                   kableExtra::kable_paper(full_width = F)
