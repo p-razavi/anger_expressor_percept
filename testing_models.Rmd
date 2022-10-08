@@ -1,8 +1,13 @@
 ---
 title: "Testing the models"
 author: "Pooya Razavi"
-date: "2022-10-07"
-output: html_document
+date: "last knitted: `r Sys.time()`"
+output: 
+  html_document:
+    theme: cosmo
+    highlight: textmate
+    toc: TRUE
+    toc_float: TRUE
 editor_options: 
   chunk_output_type: console
 ---
@@ -14,31 +19,53 @@ library(sjPlot)
 library(sjmisc)
 library(emmeans)
 
-df <- read.csv("Perc_AngExpress_longish_scored.csv")
+#df <- read.csv("Perc_AngExpress_longish_scored.csv")
+df <- read.csv("C:/Users/pooya/Dropbox (University of Oregon)/Anger Dissertation/Study 2 _ perceptions of anger expressors/analyses/Perc_AngExpress_longish_scored.csv")
 
 #a dataframe with only the relevant variables, and predictors as factors
 df2 <- df %>% 
             select(duration, response_id, scenario, harm_target, prot_gender, anger_express, 
                    social_conscience, steadfastness, wisdom, obstinacy) %>% 
             mutate_if(sapply(., is.character), as.factor)          
-  as.factor(scenario, harm_target, prot_gender, anger_express)
 
+levels(df2$harm_target) <- c("Other", "Self")
+levels(df2$prot_gender) <- c("Female", "Male")
+levels(df2$anger_express) <- c("No", "Yes")
 
 knitr::opts_chunk$set(echo = TRUE, emm_options(pbkrtest.limit = 4000))
 ```
 
 # Outcome: Social Conscience
 
-```{r social-consc}
+## Descriptives
+
+```{r social-consc-descript}
 #descriptives
     #main effects
-    psych::describeBy(df2$social_conscience, group = df2$anger_express)
-    psych::describeBy(df2$social_conscience, group = df2$harm_target)
-    psych::describeBy(df2$social_conscience, group = df2$prot_gender)
+    psych::describeBy(df2$social_conscience, group = df2$anger_express, mat = TRUE) %>% knitr::kable(digits = 2)
+    psych::describeBy(df2$social_conscience, group = df2$harm_target, mat = TRUE) %>% knitr::kable(digits = 2)
+    psych::describeBy(df2$social_conscience, group = df2$prot_gender, mat = TRUE) %>% knitr::kable(digits = 2)
+    
     #interactions
-    psych::describeBy(df2$social_conscience, group = list(df2$anger_express, df2$harm_target))
+    psych::describeBy(df2$social_conscience, 
+                      group = list(df2$anger_express, df2$harm_target), mat = TRUE) %>% 
+      knitr::kable(digits = 2)
     
+    psych::describeBy(df2$social_conscience, 
+                      group = list(df2$anger_express, df2$prot_gender), mat = TRUE) %>% 
+      knitr::kable(digits = 2)
     
+    psych::describeBy(df2$social_conscience, 
+                      group = list(df2$anger_express, df2$harm_target, df2$prot_gender), mat = TRUE) %>% 
+      knitr::kable(digits = 2)
+    
+```
+
+## The models
+
+### Omnibus
+
+```{r social-consc-model0}
 #setting the contrasts
     contrasts(df2$harm_target) <- contr.sum
     contrasts(df2$prot_gender) <- contr.sum
@@ -48,40 +75,156 @@ knitr::opts_chunk$set(echo = TRUE, emm_options(pbkrtest.limit = 4000))
     social_conscience_m1 <- lmer(social_conscience ~ harm_target * prot_gender * anger_express + (1 | response_id),
                                  data = df2)
     anova(social_conscience_m1)
+    #pander::pander( anova( social_conscience_m1 ) ) 
+```
 
-#first research question
+
+### First research question
+
+```{r social-consc-model1}
     emmeans(social_conscience_m1, pairwise ~ harm_target | anger_express)
-    
-#visualization
-    #visual 1
-    emmip(social_conscience_m1, anger_express ~ harm_target) #one way to visualize the interaction
-    
-    #visual 2
-    plot_model(social_conscience_m1, type = "pred", terms = c("harm_target", "anger_express"),
-               title = "Outcome: Social Conscience",
-               axis.title = c("Target of Harm", "Rating of Social Conscience"),
-               legend.title = "Anger Expressed",
-               axis.lim = c(1,5)) +
-                theme_bw()
-    
-    
-#visualize the interactions
-    plot_model(social_conscience_m1, type = "pred", terms = c("harm_target", "prot_gender", "anger_express"))  
-    
-    plot_model(social_conscience_m1, type = "pred", terms = c("harm_target", "prot_gender"),
-               title = "Outcome: Social Conscience",
-               axis.title = c("Target of Harm", "Rating of Social Conscience"),
-               legend.title = "Protagonist's Gender",
-               axis.lim = c(1,5))
-    
-    
-    
-    plot_model(social_conscience_m1, type = "pred", terms = c("prot_gender", "anger_express"),
-               axis.title = c("Protagonist's Gender", "Rating of Social Conscience"),
-               legend.title = "Anger Expressed",
-               axis.lim = c(1,5))
+```    
 
-    
+### Second research question
 
+```{r social-consc-model2}
+    emmeans(social_conscience_m1, pairwise ~ prot_gender | anger_express)    
+```
+
+
+### Third research question
+
+```{r social-consc-models3}
+    emmeans(social_conscience_m1, pairwise ~  anger_express | harm_target * prot_gender)    
+
+```
+
+## Figures 
+
+### Using emmeans
+
+```{r social-consc-visuals-emmeans, fig.align='center', fig.width=5}
+
+    #first research question
+    emmip(social_conscience_m1, anger_express ~ harm_target) 
+
+    #second research question
+    emmip(social_conscience_m1, prot_gender ~ anger_express)    
+
+
+    #third research question
+    emmip(social_conscience_m1, anger_express ~ harm_target * prot_gender)  
+```    
+    
+### Using sjPlot
+
+```{r social-consc-visuals-sjPlot, fig.align='center', fig.width=5}
+
+    #first research question
+    sc_rq1_p <- plot_model(social_conscience_m1, type = "pred", terms = c("harm_target", "anger_express"),
+                    title = "Outcome: Social Conscience",
+                     axis.title = c("Target of Harm", "Rating of Social Conscience"),
+                    legend.title = "Anger Expressed",
+                    axis.lim = c(1,5)) +
+                    theme_bw()
+    sc_rq1_p
+    
+    #second research question
+    sc_rq2_p <- plot_model(social_conscience_m1, type = "pred", terms = c("prot_gender", "anger_express"),
+                    title = "Outcome: Social Conscience",
+                     axis.title = c("Protagonist's Gender", "Rating of Social Conscience"),
+                    legend.title = "Anger Expressed",
+                    axis.lim = c(1,5)) +
+                    theme_bw()
+    sc_rq2_p
+    
+    #third research question
+    plot_model(social_conscience_m1, type = "pred", terms = c("harm_target", "anger_express", "prot_gender"),
+                    title = "Outcome: Social Conscience",
+                     axis.title = c("Target of Harm", "Rating of Social Conscience"),
+                    legend.title = "Anger Expressed",
+                    axis.lim = c(1,5)) +
+                    theme_bw()
+```
+        
+### Using ggplot
+
+```{r social-consc-visuals-ggplot, fig.align='center', fig.width=5}
+#research question 1  
+    
+    #getting mean and se for the graph
+    descripts <- psych::describeBy(df2$social_conscience, 
+                                   group = list(df2$anger_express, df2$harm_target), mat = TRUE) %>% 
+                  select(group1, group2, mean, se) %>% 
+                  transmute(Expression = group1,
+                            Target = group2,
+                            mean, se)
+    
+    
+     #interaction plot
+              ggplot(
+                descripts,
+                aes(x = Target, color = Expression, group = Expression, y = mean,
+                    ymin = mean-se, ymax = mean+se)) + 
+                geom_line(position = position_dodge(0.3)) +
+                geom_errorbar(position = position_dodge(0.3), width = 0.2) +
+                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
+                ylim(1, 5) +
+                theme_bw() + 
+                ggtitle("Social Conscience") +
+                labs(y="Rating of Protagonist's Social Conscience", x = "Target of Harm", color = "Anger Expressed") +
+                theme(plot.title = element_text(hjust = 0.5))
+              
+#research question 2  
+    
+    #getting mean and se for the graph
+    descripts <- psych::describeBy(df2$social_conscience, 
+                                   group = list(df2$anger_express, df2$prot_gender), mat = TRUE) %>% 
+                  select(group1, group2, mean, se) %>% 
+                  transmute(Expression = group1,
+                            Gender = group2,
+                            mean, se)
+    
+    
+     #interaction plot
+              ggplot(
+                descripts,
+                aes(x = Gender, color = Expression, group = Expression, y = mean,
+                    ymin = mean-se, ymax = mean+se)) + 
+                geom_line(position = position_dodge(0.3)) +
+                geom_errorbar(position = position_dodge(0.3), width = 0.2) +
+                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
+                ylim(1, 5) +
+                theme_bw() + 
+                ggtitle("Social Conscience") +
+                labs(y="Rating of Protagonist's Social Conscience", x = "Protagonist's Gender", color = "Anger Expressed") +
+                theme(plot.title = element_text(hjust = 0.5))
+    
+#research question 3
+      descripts <- psych::describeBy(df2$social_conscience, 
+                         group = list(df2$anger_express, df2$harm_target, df2$prot_gender), mat = TRUE)   %>% 
+                        select(group1, group2, group3, mean, se) %>% 
+                        transmute(Expression = group1,
+                                  Target = group2,
+                                  Gender = group3,
+                                  mean, se)      
+
+      
+     #interaction plot
+              ggplot(
+                descripts,
+                aes(x = Gender, color = Expression, group = Expression, y = mean,
+                    ymin = mean-se, ymax = mean+se)) + 
+                facet_wrap(~Target) +
+                geom_line(position = position_dodge(0.3)) +
+                geom_errorbar(position = position_dodge(0.3), width = 0.15) +
+                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
+                ylim(1, 5) +
+                theme_bw() + 
+                ggtitle("Social Conscience") +
+                labs(y="Rating of Protagonist's Social Conscience", x = "Protagonist's Gender", color = "Anger Expressed") +
+                theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10))      
+
+      #ggsave('social_conscience_3way.png',dpi=600) #this code will save a high resolution version of the figure
 ```
 
