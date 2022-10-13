@@ -21,7 +21,7 @@ library(emmeans)
 library(MetBrewer)
 
 #df <- read.csv("Perc_AngExpress_longish_scored.csv")
-df <- read.csv("C:/Users/pooya/Dropbox (University of Oregon)/Anger Dissertation/Study 2 _ perceptions of anger expressors/analyses/Perc_AngExpress_longish_scored.csv")
+df <- read.csv("Perc_AngExpress_longish_scored.csv")
 
 #a dataframe with only the relevant variables, and predictors as factors
 df2 <- df %>% 
@@ -76,6 +76,7 @@ knitr::opts_chunk$set(echo = TRUE, emm_options(pbkrtest.limit = 4000))
     social_conscience_m1 <- lmer(social_conscience ~ harm_target * prot_gender * anger_express + (1 | response_id),
                                  data = df2)
     anova(social_conscience_m1)
+    summary(social_conscience_m1) 
     #pander::pander( anova( social_conscience_m1 ) ) 
 ```
 
@@ -321,6 +322,7 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
     steadfastness_m1 <- lmer(steadfastness ~ harm_target * prot_gender * anger_express + (1 | response_id),
                                  data = df2)
     anova(steadfastness_m1)
+    summary(steadfastness_m1)
     #pander::pander( anova( steadfastness_m1 ) ) 
 ```
 
@@ -528,6 +530,7 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
     wisdom_m1 <- lmer(wisdom ~ harm_target * prot_gender * anger_express + (1 | response_id),
                                  data = df2)
     anova(wisdom_m1)
+    summary(wisdom_m1)
     #pander::pander( anova( wisdom_m1 ) ) 
 ```
 
@@ -735,6 +738,7 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
     obstinacy_m1 <- lmer(obstinacy ~ harm_target * prot_gender * anger_express + (1 | response_id),
                                  data = df2)
     anova(obstinacy_m1)
+    summary(obstinacy_m1)
     #pander::pander( anova( obstinacy_m1 ) ) 
 ```
 
