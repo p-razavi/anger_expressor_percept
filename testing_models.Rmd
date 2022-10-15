@@ -26,7 +26,7 @@ df <- read.csv("Perc_AngExpress_longish_scored.csv")
 #a dataframe with only the relevant variables, and predictors as factors
 df2 <- df %>% 
             select(duration, response_id, scenario, harm_target, prot_gender, anger_express, 
-                   social_conscience, steadfastness, wisdom, obstinacy) %>% 
+                   communalism, steadfastness, wisdom, obstinacy) %>% 
             mutate_if(sapply(., is.character), as.factor)          
 
 levels(df2$harm_target) <- c("Other", "Self")
@@ -36,27 +36,27 @@ levels(df2$anger_express) <- c("No", "Yes")
 knitr::opts_chunk$set(echo = TRUE, emm_options(pbkrtest.limit = 4000))
 ```
 
-# Outcome: Social Conscience
+# Outcome: Communalism
 
 ## Descriptives
 
-```{r social-consc-descript}
+```{r communal-descript}
 #descriptives
     #main effects
-    psych::describeBy(df2$social_conscience, group = df2$anger_express, mat = TRUE) %>% knitr::kable(digits = 2)
-    psych::describeBy(df2$social_conscience, group = df2$harm_target, mat = TRUE) %>% knitr::kable(digits = 2)
-    psych::describeBy(df2$social_conscience, group = df2$prot_gender, mat = TRUE) %>% knitr::kable(digits = 2)
+    psych::describeBy(df2$communalism, group = df2$anger_express, mat = TRUE) %>% knitr::kable(digits = 2)
+    psych::describeBy(df2$communalism, group = df2$harm_target, mat = TRUE) %>% knitr::kable(digits = 2)
+    psych::describeBy(df2$communalism, group = df2$prot_gender, mat = TRUE) %>% knitr::kable(digits = 2)
     
     #interactions
-    psych::describeBy(df2$social_conscience, 
+    psych::describeBy(df2$communalism, 
                       group = list(df2$anger_express, df2$harm_target), mat = TRUE) %>% 
       knitr::kable(digits = 2)
     
-    psych::describeBy(df2$social_conscience, 
+    psych::describeBy(df2$communalism, 
                       group = list(df2$anger_express, df2$prot_gender), mat = TRUE) %>% 
       knitr::kable(digits = 2)
     
-    psych::describeBy(df2$social_conscience, 
+    psych::describeBy(df2$communalism, 
                       group = list(df2$anger_express, df2$harm_target, df2$prot_gender), mat = TRUE) %>% 
       knitr::kable(digits = 2)
     
@@ -66,38 +66,38 @@ knitr::opts_chunk$set(echo = TRUE, emm_options(pbkrtest.limit = 4000))
 
 ### Omnibus
 
-```{r social-consc-model0}
+```{r communal-model0}
 #setting the contrasts
     contrasts(df2$harm_target) <- contr.sum
     contrasts(df2$prot_gender) <- contr.sum
     contrasts(df2$anger_express) <- contr.sum
 
 #omnibus model
-    social_conscience_m1 <- lmer(social_conscience ~ harm_target * prot_gender * anger_express + (1 | response_id),
+    communalism_m1 <- lmer(communalism ~ harm_target * prot_gender * anger_express + (1 | response_id),
                                  data = df2)
-    anova(social_conscience_m1)
-    summary(social_conscience_m1) 
-    #pander::pander( anova( social_conscience_m1 ) ) 
+    anova(communalism_m1)
+    summary(communalism_m1) 
+    #pander::pander( anova( communalism_m1 ) ) 
 ```
 
 
 ### First research question
 
-```{r social-consc-model1}
-    emmeans(social_conscience_m1, pairwise ~ anger_express | harm_target)
+```{r communal-model1}
+    emmeans(communalism_m1, pairwise ~ anger_express | harm_target)
 ```    
 
 ### Second research question
 
-```{r social-consc-model2}
-    emmeans(social_conscience_m1, pairwise ~ prot_gender | anger_express)    
+```{r communal-model2}
+    emmeans(communalism_m1, pairwise ~ prot_gender | anger_express)    
 ```
 
 
 ### Third research question
 
-```{r social-consc-models3}
-    emmeans(social_conscience_m1, pairwise ~  anger_express | harm_target * prot_gender)    
+```{r communal-models3}
+    emmeans(communalism_m1, pairwise ~  anger_express | harm_target * prot_gender)    
 
 ```
 
@@ -107,45 +107,45 @@ For this first outcome, I'll try three different packages for visualization. Onl
 
 ### Using emmeans
 
-```{r social-consc-visuals-emmeans, fig.align='center', fig.width=5}
+```{r communal-visuals-emmeans, fig.align='center', fig.width=5}
 
     #first research question
-    emmip(social_conscience_m1, anger_express ~ harm_target) 
+    emmip(communalism_m1, anger_express ~ harm_target) 
 
     #second research question
-    emmip(social_conscience_m1, prot_gender ~ anger_express)    
+    emmip(communalism_m1, prot_gender ~ anger_express)    
 
 
     #third research question
-    emmip(social_conscience_m1, anger_express ~ harm_target * prot_gender)  
+    emmip(communalism_m1, anger_express ~ harm_target * prot_gender)  
 ```    
     
 ### Using sjPlot
 
-```{r social-consc-visuals-sjPlot, fig.align='center', fig.width=5}
+```{r communal-visuals-sjPlot, fig.align='center', fig.width=5}
 
     #first research question
-    sc_rq1_p <- plot_model(social_conscience_m1, type = "pred", terms = c("harm_target", "anger_express"),
-                    title = "Outcome: Social Conscience",
-                     axis.title = c("Target of Harm", "Rating of Social Conscience"),
+    sc_rq1_p <- plot_model(communalism_m1, type = "pred", terms = c("harm_target", "anger_express"),
+                    title = "Outcome: Communalism",
+                     axis.title = c("Target of Harm", "Rating of Communalism"),
                     legend.title = "Anger Expressed",
                     axis.lim = c(1,5)) +
                     theme_bw()
     sc_rq1_p
     
     #second research question
-    sc_rq2_p <- plot_model(social_conscience_m1, type = "pred", terms = c("prot_gender", "anger_express"),
-                    title = "Outcome: Social Conscience",
-                     axis.title = c("Protagonist's Gender", "Rating of Social Conscience"),
+    sc_rq2_p <- plot_model(communalism_m1, type = "pred", terms = c("prot_gender", "anger_express"),
+                    title = "Outcome: Communalism",
+                     axis.title = c("Protagonist's Gender", "Rating of Communalism"),
                     legend.title = "Anger Expressed",
                     axis.lim = c(1,5)) +
                     theme_bw()
     sc_rq2_p
     
     #third research question
-    plot_model(social_conscience_m1, type = "pred", terms = c("harm_target", "anger_express", "prot_gender"),
-                    title = "Outcome: Social Conscience",
-                     axis.title = c("Target of Harm", "Rating of Social Conscience"),
+    plot_model(communalism_m1, type = "pred", terms = c("harm_target", "anger_express", "prot_gender"),
+                    title = "Outcome: Communalism",
+                     axis.title = c("Target of Harm", "Rating of Communalism"),
                     legend.title = "Anger Expressed",
                     axis.lim = c(1,5)) +
                     theme_bw()
@@ -153,11 +153,11 @@ For this first outcome, I'll try three different packages for visualization. Onl
         
 ### Using ggplot
 
-```{r social-consc-visuals-ggplot, fig.align='center', fig.width=5}
+```{r communal-visuals-ggplot, fig.align='center', fig.width=5}
 #research question 1  
     
     #getting mean and se for the graph
-    descripts <- psych::describeBy(df2$social_conscience, 
+    descripts <- psych::describeBy(df2$communalism, 
                                    group = list(df2$anger_express, df2$harm_target), mat = TRUE) %>% 
                   select(group1, group2, mean, se) %>% 
                   transmute(Expression = group1,
@@ -166,18 +166,22 @@ For this first outcome, I'll try three different packages for visualization. Onl
     
     
      #interaction plot - dot-whiskers and line plot
-              ggplot(
+  com_rq1 <-  ggplot(
                 descripts,
                 aes(x = Target, color = Expression, group = Expression, y = mean,
                     ymin = mean-se, ymax = mean+se)) + 
-                geom_line(position = position_dodge(0.3)) +
-                geom_errorbar(position = position_dodge(0.3), width = 0.2) +
-                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
+                geom_line(position = position_dodge(0.1)) +
+                geom_errorbar(position = position_dodge(0.1), width = 0.12) +
+                geom_point(aes(color = Expression), position = position_dodge(0.1), size = .8) +
                 ylim(1, 5) +
                 theme_bw() + 
-                ggtitle("Social Conscience") +
-                labs(y="Rating of Protagonist's Social Conscience", x = "Target of Harm", color = "Anger Expressed") +
-                theme(plot.title = element_text(hjust = 0.5))
+                ggtitle("Communalism") +
+                labs(y="Rating of Protagonist's Communalism", x = "Target of Harm", color = "Anger Expressed") +
+                theme(plot.title = element_text(hjust = 0.5))+ 
+                scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))
+      com_rq1
+      
+      #ggsave(plot = com_rq1, width = 5, height = 5, dpi = 600, filename = "communalism_rq1.png")
      
        #interaction plot - bar plot
               ggplot(
@@ -189,8 +193,8 @@ For this first outcome, I'll try three different packages for visualization. Onl
                 #facet_wrap(~Target) +
                 scale_y_continuous(limits = c(1, 5), oob = scales::squish) +
                 theme_bw() + 
-                ggtitle("Social Conscience") +
-                labs(y="Rating of Protagonist's Social Conscience", x = "Target of Harm", fill = "Anger Expressed") +
+                ggtitle("Communalism") +
+                labs(y="Rating of Protagonist's Communalism", x = "Target of Harm", fill = "Anger Expressed") +
                 theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
                 scale_fill_manual(values=met.brewer("Nizami", 2, direction=-1))
               
@@ -198,7 +202,7 @@ For this first outcome, I'll try three different packages for visualization. Onl
 #research question 2  
     
     #getting mean and se for the graph
-    descripts <- psych::describeBy(df2$social_conscience, 
+    descripts <- psych::describeBy(df2$communalism, 
                                    group = list(df2$anger_express, df2$prot_gender), mat = TRUE) %>% 
                   select(group1, group2, mean, se) %>% 
                   transmute(Expression = group1,
@@ -216,8 +220,8 @@ For this first outcome, I'll try three different packages for visualization. Onl
                 geom_point(aes(color = Expression), position = position_dodge(0.3)) +
                 ylim(1, 5) +
                 theme_bw() + 
-                ggtitle("Social Conscience") +
-                labs(y="Rating of Protagonist's Social Conscience", x = "Protagonist's Gender", color = "Anger Expressed") +
+                ggtitle("Communalism") +
+                labs(y="Rating of Protagonist's Communalism", x = "Protagonist's Gender", color = "Anger Expressed") +
                 theme(plot.title = element_text(hjust = 0.5))
     
       #interaction plot - bar plot
@@ -230,13 +234,13 @@ For this first outcome, I'll try three different packages for visualization. Onl
                 #facet_wrap(~Target) +
                 scale_y_continuous(limits = c(1, 5), oob = scales::squish) +
                 theme_bw() + 
-                ggtitle("Social Conscience") +
-                labs(y="Rating of Protagonist's Social Conscience", x = "Protagonist's Gender", fill = "Anger Expressed") +
+                ggtitle("Communalism") +
+                labs(y="Rating of Protagonist's Communalism", x = "Protagonist's Gender", fill = "Anger Expressed") +
                 theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
                 scale_fill_manual(values=met.brewer("Nizami", 2, direction=-1)) 
               
 #research question 3
-      descripts <- psych::describeBy(df2$social_conscience, 
+      descripts <- psych::describeBy(df2$communalism, 
                          group = list(df2$anger_express, df2$harm_target, df2$prot_gender), mat = TRUE)   %>% 
                         select(group1, group2, group3, mean, se) %>% 
                         transmute(Expression = group1,
@@ -256,11 +260,11 @@ For this first outcome, I'll try three different packages for visualization. Onl
                 geom_point(aes(color = Expression), position = position_dodge(0.3)) +
                 ylim(1, 5) +
                 theme_bw() + 
-                ggtitle("Social Conscience") +
-                labs(y="Rating of Protagonist's Social Conscience", x = "Protagonist's Gender", color = "Anger Expressed") +
+                ggtitle("Communalism") +
+                labs(y="Rating of Protagonist's Communalism", x = "Protagonist's Gender", color = "Anger Expressed") +
                 theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10))      
 
-      #ggsave('social_conscience_3way.png',dpi=600) #this code will save a high resolution version of the figure
+      #ggsave('communalism_rq1.png',dpi=600) #this code will save a high resolution version of the figure
        
       #interaction plot - bar plot               
               ggplot(
@@ -272,8 +276,8 @@ For this first outcome, I'll try three different packages for visualization. Onl
                 facet_wrap(~Target) +
                 scale_y_continuous(limits = c(1, 5), oob = scales::squish) +
                 theme_bw() + 
-                ggtitle("Social Conscience") +
-                labs(y="Rating of Protagonist's Social Conscience", x = "Protagonist's Gender", fill = "Anger Expressed") +
+                ggtitle("Communalism") +
+                labs(y="Rating of Protagonist's Communalism", x = "Protagonist's Gender", fill = "Anger Expressed") +
                 theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
                 scale_fill_manual(values=met.brewer("Nizami", 2, direction=-1))
               
@@ -364,19 +368,24 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
     
     
      #interaction plot - dot-whiskers and lines
-              ggplot(
-                descripts,
-                aes(x = Target, color = Expression, group = Expression, y = mean,
-                    ymin = mean-se, ymax = mean+se)) + 
-                geom_line(position = position_dodge(0.3)) +
-                geom_errorbar(position = position_dodge(0.3), width = 0.2) +
-                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
-                ylim(1, 5) +
-                theme_bw() + 
-                ggtitle("Steadfastness") +
-                labs(y="Rating of Protagonist's Steadfastness", x = "Target of Harm", color = "Anger Expressed") +
-                theme(plot.title = element_text(hjust = 0.5))
+          stead_rq1 <-  ggplot(
+                            descripts,
+                            aes(x = Target, color = Expression, group = Expression, y = mean,
+                                ymin = mean-se, ymax = mean+se)) + 
+                            geom_line(position = position_dodge(0.1)) +
+                            geom_errorbar(position = position_dodge(0.1), width = 0.12) +
+                            geom_point(aes(color = Expression), position = position_dodge(0.1), size = .8) +
+                            ylim(1, 5) +
+                            theme_bw() + 
+                            ggtitle("Steadfastness") +
+                            labs(y="Rating of Protagonist's Steadfastness", x = "Target of Harm", color = "Anger Expressed") +
+                            theme(plot.title = element_text(hjust = 0.5))+ 
+                            scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))
+          stead_rq1
 
+          #ggsave(plot = stead_rq1, width = 5, height = 5, dpi = 600, filename = "steadfastness_rq1.png")
+          
+          
       #interaction plot - bar plot
               ggplot(
                 descripts,
@@ -572,19 +581,24 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
     
     
      #interaction plot - dot-whiskers and lines
-              ggplot(
+    wis_rq1 <-  ggplot(
                 descripts,
                 aes(x = Target, color = Expression, group = Expression, y = mean,
                     ymin = mean-se, ymax = mean+se)) + 
-                geom_line(position = position_dodge(0.3)) +
-                geom_errorbar(position = position_dodge(0.3), width = 0.2) +
-                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
+                geom_line(position = position_dodge(0.1)) +
+                geom_errorbar(position = position_dodge(0.1), width = 0.12) +
+                geom_point(aes(color = Expression), position = position_dodge(0.1), size = .8) +
                 ylim(1, 5) +
                 theme_bw() + 
                 ggtitle("Wisdom") +
                 labs(y="Rating of Protagonist's Wisdom", x = "Target of Harm", color = "Anger Expressed") +
-                theme(plot.title = element_text(hjust = 0.5))
-
+                theme(plot.title = element_text(hjust = 0.5))+ 
+                scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))
+              
+    wis_rq1
+              
+              #ggsave(plot = wis_rq1, width = 5, height = 5, dpi = 600, filename = "wisdom_rq1.png")
+    
       #interaction plot - bar plot
               ggplot(
                 descripts,
@@ -792,6 +806,24 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
                 ggtitle("Obstinacy") +
                 labs(y="Rating of Protagonist's Obstinacy", x = "Target of Harm", color = "Anger Expressed") +
                 theme(plot.title = element_text(hjust = 0.5))
+              
+    obst_rq1 <-  ggplot(
+                descripts,
+                aes(x = Target, color = Expression, group = Expression, y = mean,
+                    ymin = mean-se, ymax = mean+se)) + 
+                geom_line(position = position_dodge(0.1)) +
+                geom_errorbar(position = position_dodge(0.1), width = 0.12) +
+                geom_point(aes(color = Expression), position = position_dodge(0.1), size = .8) +
+                ylim(1, 5) +
+                theme_bw() + 
+                ggtitle("Obstinacy") +
+                labs(y="Rating of Protagonist's Obstinacy", x = "Target of Harm", color = "Anger Expressed") +
+                theme(plot.title = element_text(hjust = 0.5))+ 
+                scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))
+              
+    obst_rq1
+              
+              #ggsave(plot = obst_rq1, width = 5, height = 5, dpi = 600, filename = "obstinacy_rq1.png")
 
       #interaction plot - bar plot
               ggplot(
