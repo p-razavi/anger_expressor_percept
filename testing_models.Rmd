@@ -20,7 +20,7 @@ library(sjmisc)
 library(emmeans)
 library(MetBrewer)
 
-#df <- read.csv("Perc_AngExpress_longish_scored.csv")
+
 df <- read.csv("Perc_AngExpress_longish_scored.csv")
 
 #a dataframe with only the relevant variables, and predictors as factors
@@ -211,20 +211,24 @@ For this first outcome, I'll try three different packages for visualization. Onl
     
     
      #interaction plot - dot-whiskers and line plot
-              ggplot(
-                descripts,
-                aes(x = Gender, color = Expression, group = Expression, y = mean,
-                    ymin = mean-se, ymax = mean+se)) + 
-                geom_line(position = position_dodge(0.3)) +
-                geom_errorbar(position = position_dodge(0.3), width = 0.2) +
-                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
-                ylim(1, 5) +
-                theme_bw() + 
-                ggtitle("Communalism") +
-                labs(y="Rating of Protagonist's Communalism", x = "Protagonist's Gender", color = "Anger Expressed") +
-                theme(plot.title = element_text(hjust = 0.5))
-    
-      #interaction plot - bar plot
+           
+        com_rq2 <-  ggplot(
+                     descripts,
+                      aes(x = Gender, color = Expression, group = Expression, y = mean,
+                          ymin = mean-se, ymax = mean+se)) + 
+                      geom_line(position = position_dodge(0.1)) +
+                      geom_errorbar(position = position_dodge(0.1), width = 0.12) +
+                      geom_point(aes(color = Expression), position = position_dodge(0.1), size = .8) +
+                      ylim(1, 5) +
+                      theme_bw() + 
+                      ggtitle("Communalism") +
+                      labs(y="Rating of Protagonist's Communalism", x = "Protagonist's Gender", color = "Anger Expressed") +
+                      theme(plot.title = element_text(hjust = 0.5))+ 
+                      scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))
+            com_rq2
+          #ggsave(plot = com_rq2, width = 5, height = 5, dpi = 600, filename = "communalism_rq2.png")
+            
+        #interaction plot - bar plot
               ggplot(
                 descripts,
                 aes(x = Gender, fill = Expression, group = Expression, y = mean,
@@ -418,20 +422,24 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
     
     
      #interaction plot - dot-whiskers and lines
-              ggplot(
-                descripts,
-                aes(x = Gender, color = Expression, group = Expression, y = mean,
-                    ymin = mean-se, ymax = mean+se)) + 
-                geom_line(position = position_dodge(0.3)) +
-                geom_errorbar(position = position_dodge(0.3), width = 0.2) +
-                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
-                ylim(1, 5) +
-                theme_bw() + 
-                ggtitle("Steadfastness") +
-                labs(y="Rating of Protagonist's Steadfastness", x = "Protagonist's Gender", color = "Anger Expressed") +
-                theme(plot.title = element_text(hjust = 0.5))
+ 
+        stead_rq2 <-  ggplot(
+                            descripts,
+                            aes(x = Gender, color = Expression, group = Expression, y = mean,
+                                ymin = mean-se, ymax = mean+se)) + 
+                            geom_line(position = position_dodge(0.1)) +
+                            geom_errorbar(position = position_dodge(0.1), width = 0.12) +
+                            geom_point(aes(color = Expression), position = position_dodge(0.1), size = .8) +
+                            ylim(1, 5) +
+                            theme_bw() + 
+                            ggtitle("Steadfastness") +
+                            labs(y="Rating of Protagonist's Steadfastness", x = "Protagonist's Gender", color = "Anger Expressed") +
+                            theme(plot.title = element_text(hjust = 0.5))+ 
+                            scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))
+          stead_rq2
 
-              
+          #ggsave(plot = stead_rq2, width = 5, height = 5, dpi = 600, filename = "steadfastness_rq2.png")
+          
       #interaction plot - bar plot
               ggplot(
                 descripts,
@@ -631,20 +639,24 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
     
     
      #interaction plot - dot-whiskers and lines
-              ggplot(
+
+    wis_rq2 <-  ggplot(
                 descripts,
                 aes(x = Gender, color = Expression, group = Expression, y = mean,
                     ymin = mean-se, ymax = mean+se)) + 
-                geom_line(position = position_dodge(0.3)) +
-                geom_errorbar(position = position_dodge(0.3), width = 0.2) +
-                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
+                geom_line(position = position_dodge(0.1)) +
+                geom_errorbar(position = position_dodge(0.1), width = 0.12) +
+                geom_point(aes(color = Expression), position = position_dodge(0.1), size = .8) +
                 ylim(1, 5) +
                 theme_bw() + 
                 ggtitle("Wisdom") +
                 labs(y="Rating of Protagonist's Wisdom", x = "Protagonist's Gender", color = "Anger Expressed") +
-                theme(plot.title = element_text(hjust = 0.5))
-
+                theme(plot.title = element_text(hjust = 0.5))+ 
+                scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))
               
+    wis_rq2
+              
+              #ggsave(plot = wis_rq2, width = 5, height = 5, dpi = 600, filename = "wisdom_rq2.png")              
       #interaction plot - bar plot
               ggplot(
                 descripts,
@@ -857,20 +869,25 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
     
     
      #interaction plot - dot-whiskers and lines
-              ggplot(
+
+    obst_rq2 <-  ggplot(
                 descripts,
                 aes(x = Gender, color = Expression, group = Expression, y = mean,
                     ymin = mean-se, ymax = mean+se)) + 
-                geom_line(position = position_dodge(0.3)) +
-                geom_errorbar(position = position_dodge(0.3), width = 0.2) +
-                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
+                geom_line(position = position_dodge(0.1)) +
+                geom_errorbar(position = position_dodge(0.1), width = 0.12) +
+                geom_point(aes(color = Expression), position = position_dodge(0.1), size = .8) +
                 ylim(1, 5) +
                 theme_bw() + 
                 ggtitle("Obstinacy") +
                 labs(y="Rating of Protagonist's Obstinacy", x = "Protagonist's Gender", color = "Anger Expressed") +
-                theme(plot.title = element_text(hjust = 0.5))
-
+                theme(plot.title = element_text(hjust = 0.5))+ 
+                scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))
               
+    obst_rq2
+              
+              #ggsave(plot = obst_rq2, width = 5, height = 5, dpi = 600, filename = "obstinacy_rq2.png")
+    
       #interaction plot - bar plot
               ggplot(
                 descripts,
