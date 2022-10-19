@@ -76,7 +76,7 @@ knitr::opts_chunk$set(echo = TRUE, emm_options(pbkrtest.limit = 4000))
     communalism_m1 <- lmer(communalism ~ harm_target * prot_gender * anger_express + (1 | response_id),
                                  data = df2)
     anova(communalism_m1)
-    summary(communalism_m1) 
+    #summary(communalism_m1) 
     #pander::pander( anova( communalism_m1 ) ) 
 ```
 
@@ -97,7 +97,14 @@ knitr::opts_chunk$set(echo = TRUE, emm_options(pbkrtest.limit = 4000))
 ### Third research question
 
 ```{r communal-models3}
-    emmeans(communalism_m1, pairwise ~  anger_express | harm_target * prot_gender)    
+#interaction
+  communalism_rq3_model <- df2 %>% 
+                            dplyr::filter(anger_express == "Yes") %>% 
+                                lmer(communalism ~ harm_target * prot_gender + (1 | response_id),
+                                                           data = .)
+  anova(communalism_rq3_model, type = "III") %>% knitr::kable(format = "pipe")
+#simple interaction effects
+  emmeans(communalism_rq3_model, pairwise ~  prot_gender | harm_target)
 
 ```
 
@@ -117,7 +124,9 @@ For this first outcome, I'll try three different packages for visualization. Onl
 
 
     #third research question
-    emmip(communalism_m1, anger_express ~ harm_target * prot_gender)  
+    emmip(communalism_m1, anger_express ~ harm_target * prot_gender) 
+    
+    emmip(communalism_rq3_model, ~ prot_gender * harm_target) 
 ```    
     
 ### Using sjPlot
@@ -143,10 +152,10 @@ For this first outcome, I'll try three different packages for visualization. Onl
     sc_rq2_p
     
     #third research question
-    plot_model(communalism_m1, type = "pred", terms = c("harm_target", "anger_express", "prot_gender"),
+    plot_model(communalism_rq3_model, type = "pred", terms = c("harm_target", "prot_gender"),
                     title = "Outcome: Communalism",
                      axis.title = c("Target of Harm", "Rating of Communalism"),
-                    legend.title = "Anger Expressed",
+                    legend.title = "Protagonist's Gender",
                     axis.lim = c(1,5)) +
                     theme_bw()
 ```
@@ -250,42 +259,28 @@ For this first outcome, I'll try three different packages for visualization. Onl
                         transmute(Expression = group1,
                                   Target = group2,
                                   Gender = group3,
-                                  mean, se)      
+                                  mean, se) %>% 
+                        filter(Expression == "Yes")
 
       
      #interaction plot - dot-whiskers and line plot
-              ggplot(
+    com_rq3 <- ggplot(
                 descripts,
-                aes(x = Gender, color = Expression, group = Expression, y = mean,
+                aes(x = Gender, color = Target, group = Target, y = mean,
                     ymin = mean-se, ymax = mean+se)) + 
-                facet_wrap(~Target) +
-                geom_line(position = position_dodge(0.3)) +
-                geom_errorbar(position = position_dodge(0.3), width = 0.15) +
-                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
+                geom_line(position = position_dodge(0.1)) +
+                geom_errorbar(position = position_dodge(0.1), width = 0.12) +
+                geom_point(aes(color = Target), position = position_dodge(0.1), size = .8) +
                 ylim(1, 5) +
                 theme_bw() + 
                 ggtitle("Communalism") +
-                labs(y="Rating of Protagonist's Communalism", x = "Protagonist's Gender", color = "Anger Expressed") +
-                theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10))      
-
-      #ggsave('communalism_rq1.png',dpi=600) #this code will save a high resolution version of the figure
-       
-      #interaction plot - bar plot               
-              ggplot(
-                descripts,
-                aes(x = Gender, fill = Expression, group = Expression, y = mean,
-                    ymin = mean-se, ymax = mean+se)) +
-                geom_col(position = position_dodge(width=0.7), width = .6) +
-                geom_errorbar(position = position_dodge(width=0.7), width = 0.15) +
-                facet_wrap(~Target) +
-                scale_y_continuous(limits = c(1, 5), oob = scales::squish) +
-                theme_bw() + 
-                ggtitle("Communalism") +
-                labs(y="Rating of Protagonist's Communalism", x = "Protagonist's Gender", fill = "Anger Expressed") +
+                labs(y="Rating of Protagonist's Communalism", x = "Protagonist's Gender", color = "Target of Harm") +
                 theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
-                scale_fill_manual(values=met.brewer("Nizami", 2, direction=-1))
-              
-              
+                      scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))      
+
+    com_rq3
+      #ggsave(plot = com_rq3, width = 5, height = 5, dpi = 600, filename = "communalism_rq3.png")
+       
 ```
 
 It seems that the ggplot figures are the most clear ones. For the remaining outcomes, I'll only use ggplot figures.
@@ -351,8 +346,16 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
 ### Third research question
 
 ```{r steadfast-models3}
-    emmeans(steadfastness_m1, pairwise ~  anger_express | harm_target * prot_gender)    
-
+#interaction
+  steadfast_rq3_model <- df2 %>% 
+                            dplyr::filter(anger_express == "Yes") %>% 
+                                lmer(steadfastness ~ harm_target * prot_gender + (1 | response_id),
+                                                           data = .)
+  anova(steadfast_rq3_model, type = "III") %>% knitr::kable(format = "pipe")
+#simple interaction effects
+  emmeans(steadfast_rq3_model, pairwise ~  prot_gender | harm_target)
+  
+  
 ```
 
 ## Figures 
@@ -468,41 +471,29 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
                         transmute(Expression = group1,
                                   Target = group2,
                                   Gender = group3,
-                                  mean, se)      
+                                  mean, se) %>% 
+                        filter(Expression == "Yes")
 
       
-     #interaction plot - dot-whiskers and lines
-              ggplot(
+     #interaction plot - dot-whiskers and line plot
+  stead_rq3 <- ggplot(
                 descripts,
-                aes(x = Gender, color = Expression, group = Expression, y = mean,
+                aes(x = Gender, color = Target, group = Target, y = mean,
                     ymin = mean-se, ymax = mean+se)) + 
-                facet_wrap(~Target) +
-                geom_line(position = position_dodge(0.3)) +
-                geom_errorbar(position = position_dodge(0.3), width = 0.15) +
-                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
+                geom_line(position = position_dodge(0.1)) +
+                geom_errorbar(position = position_dodge(0.1), width = 0.12) +
+                geom_point(aes(color = Target), position = position_dodge(0.1), size = .8) +
                 ylim(1, 5) +
                 theme_bw() + 
                 ggtitle("Steadfastness") +
-                labs(y="Rating of Protagonist's Steadfastness", x = "Protagonist's Gender", color = "Anger Expressed") +
-                theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10))      
-
-      #ggsave('steadfastness_3way.png',dpi=600) #this code will save a high resolution version of the figure
-      
-      #interaction plot - bar plot                
-              ggplot(
-                descripts,
-                aes(x = Gender, fill = Expression, group = Expression, y = mean,
-                    ymin = mean-se, ymax = mean+se)) +
-                geom_col(position = position_dodge(width=0.7), width = .6) +
-                geom_errorbar(position = position_dodge(width=0.7), width = 0.15) +
-                facet_wrap(~Target) +
-                scale_y_continuous(limits = c(1, 5), oob = scales::squish) +
-                theme_bw() + 
-                ggtitle("Steadfastness") +
-                labs(y="Rating of Protagonist's Steadfastness", x = "Protagonist's Gender", fill = "Anger Expressed") +
+                labs(y="Rating of Protagonist's Communalism", x = "Protagonist's Gender", color = "Target of Harm") +
                 theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
-                scale_fill_manual(values=met.brewer("Nizami", 2, direction=-1))
-              
+                      scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))      
+
+    stead_rq3
+      #ggsave(plot = stead_rq3, width = 5, height = 5, dpi = 300, filename = "steadfastness_rq3.png")
+    
+    
 ```
 
 
@@ -568,8 +559,16 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
 ### Third research question
 
 ```{r wisd-models3}
-    emmeans(wisdom_m1, pairwise ~  anger_express | harm_target * prot_gender)    
 
+#interaction
+  wisdom_rq3_model <- df2 %>% 
+                            dplyr::filter(anger_express == "Yes") %>% 
+                                lmer(wisdom ~ harm_target * prot_gender + (1 | response_id),
+                                                           data = .)
+  anova(wisdom_rq3_model, type = "III") %>% knitr::kable(format = "pipe")
+#simple interaction effects
+  emmeans(wisdom_rq3_model, pairwise ~  prot_gender | harm_target)
+  
 ```
 
 ## Figures 
@@ -678,48 +677,36 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
 ### Research question 3
 
 ```{r wisd-visuals-rq3, fig.align='center', fig.width=7}
-    #getting mean and se for the graph
+      #getting mean and se for the graph
       descripts <- psych::describeBy(df2$wisdom, 
                          group = list(df2$anger_express, df2$harm_target, df2$prot_gender), mat = TRUE)   %>% 
                         select(group1, group2, group3, mean, se) %>% 
                         transmute(Expression = group1,
                                   Target = group2,
                                   Gender = group3,
-                                  mean, se)      
+                                  mean, se) %>% 
+                        filter(Expression == "Yes")
 
       
-     #interaction plot - dot-whiskers and lines
-              ggplot(
+     #interaction plot - dot-whiskers and line plot
+  wis_rq3 <- ggplot(
                 descripts,
-                aes(x = Gender, color = Expression, group = Expression, y = mean,
+                aes(x = Gender, color = Target, group = Target, y = mean,
                     ymin = mean-se, ymax = mean+se)) + 
-                facet_wrap(~Target) +
-                geom_line(position = position_dodge(0.3)) +
-                geom_errorbar(position = position_dodge(0.3), width = 0.15) +
-                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
+                geom_line(position = position_dodge(0.1)) +
+                geom_errorbar(position = position_dodge(0.1), width = 0.12) +
+                geom_point(aes(color = Target), position = position_dodge(0.1), size = .8) +
                 ylim(1, 5) +
                 theme_bw() + 
                 ggtitle("Wisdom") +
-                labs(y="Rating of Protagonist's Wisdom", x = "Protagonist's Gender", color = "Anger Expressed") +
-                theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10))      
-
-      #ggsave('wisdom_3way.png',dpi=600) #this code will save a high resolution version of the figure
-      
-      #interaction plot - bar plot                
-              ggplot(
-                descripts,
-                aes(x = Gender, fill = Expression, group = Expression, y = mean,
-                    ymin = mean-se, ymax = mean+se)) +
-                geom_col(position = position_dodge(width=0.7), width = .6) +
-                geom_errorbar(position = position_dodge(width=0.7), width = 0.15) +
-                facet_wrap(~Target) +
-                scale_y_continuous(limits = c(1, 5), oob = scales::squish) +
-                theme_bw() + 
-                ggtitle("Wisdom") +
-                labs(y="Rating of Protagonist's Wisdom", x = "Protagonist's Gender", fill = "Anger Expressed") +
+                labs(y="Rating of Protagonist's Wisdom", x = "Protagonist's Gender", color = "Target of Harm") +
                 theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
-                scale_fill_manual(values=met.brewer("Nizami", 2, direction=-1))
-              
+                      scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))      
+
+    wis_rq3
+      #ggsave(plot = wis_rq3, width = 5, height = 5, dpi = 300, filename = "wisdom_rq3.png")
+    
+
 ```
 
 
@@ -785,7 +772,18 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
 ### Third research question
 
 ```{r obstin-models3}
-    emmeans(obstinacy_m1, pairwise ~  anger_express | harm_target * prot_gender)    
+
+#interaction
+  obstinacy_rq3_model <- df2 %>% 
+                            dplyr::filter(anger_express == "Yes") %>% 
+                                lmer(obstinacy ~ harm_target * prot_gender + (1 | response_id),
+                                                           data = .)
+  anova(obstinacy_rq3_model, type = "III") %>% knitr::kable(format = "pipe")
+
+#simple interaction effects
+  emmeans(obstinacy_rq3_model, pairwise ~  prot_gender | harm_target)
+
+
 
 ```
 
@@ -909,46 +907,35 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
 ### Research question 3
 
 ```{r obstin-visuals-rq3, fig.align='center', fig.width=7}
-    #getting mean and se for the graph
+
+      #getting mean and se for the graph
       descripts <- psych::describeBy(df2$obstinacy, 
                          group = list(df2$anger_express, df2$harm_target, df2$prot_gender), mat = TRUE)   %>% 
                         select(group1, group2, group3, mean, se) %>% 
                         transmute(Expression = group1,
                                   Target = group2,
                                   Gender = group3,
-                                  mean, se)      
+                                  mean, se) %>% 
+                        filter(Expression == "Yes")
 
       
-     #interaction plot - dot-whiskers and lines
-              ggplot(
+     #interaction plot - dot-whiskers and line plot
+  obst_rq3 <- ggplot(
                 descripts,
-                aes(x = Gender, color = Expression, group = Expression, y = mean,
+                aes(x = Gender, color = Target, group = Target, y = mean,
                     ymin = mean-se, ymax = mean+se)) + 
-                facet_wrap(~Target) +
-                geom_line(position = position_dodge(0.3)) +
-                geom_errorbar(position = position_dodge(0.3), width = 0.15) +
-                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
+                geom_line(position = position_dodge(0.1)) +
+                geom_errorbar(position = position_dodge(0.1), width = 0.12) +
+                geom_point(aes(color = Target), position = position_dodge(0.1), size = .8) +
                 ylim(1, 5) +
                 theme_bw() + 
                 ggtitle("Obstinacy") +
-                labs(y="Rating of Protagonist's Obstinacy", x = "Protagonist's Gender", color = "Anger Expressed") +
-                theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10))      
-
-      #ggsave('obstinacy_3way.png',dpi=600) #this code will save a high resolution version of the figure
-      
-      #interaction plot - bar plot                
-              ggplot(
-                descripts,
-                aes(x = Gender, fill = Expression, group = Expression, y = mean,
-                    ymin = mean-se, ymax = mean+se)) +
-                geom_col(position = position_dodge(width=0.7), width = .6) +
-                geom_errorbar(position = position_dodge(width=0.7), width = 0.15) +
-                facet_wrap(~Target) +
-                scale_y_continuous(limits = c(1, 5), oob = scales::squish) +
-                theme_bw() + 
-                ggtitle("Obstinacy") +
-                labs(y="Rating of Protagonist's Obstinacy", x = "Protagonist's Gender", fill = "Anger Expressed") +
+                labs(y="Rating of Protagonist's Obstinacy", x = "Protagonist's Gender", color = "Target of Harm") +
                 theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
-                scale_fill_manual(values=met.brewer("Nizami", 2, direction=-1))
-              
+                      scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))      
+
+    obst_rq3
+      #ggsave(plot = obst_rq3, width = 5, height = 5, dpi = 300, filename = "obstinacy_rq3.png")
+    
+
 ```
