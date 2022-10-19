@@ -41,7 +41,7 @@ colnames(df_na_removed) <- var_name_df$var_name
 
 
 #now the column names are easier to follow
-dplyr::glimpse(df[,1:20])
+dplyr::glimpse(df_na_removed[,1:20])
 
 ```
 
@@ -403,9 +403,9 @@ ratings_longish <- df_na_removed %>%
                                                  values_from = value)
                               
 
-#remove the row where all ratings are NA
+#remove the rows where all ratings are NA
 ratings_longish <- ratings_longish %>% 
-                                  dplyr::filter(!if_all(c(capable.leader, community.work), is.na))
+                                  dplyr::filter(!if_all(c(capable.leader:community.work), is.na))
 
 
 
