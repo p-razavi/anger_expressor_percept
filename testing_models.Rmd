@@ -23,6 +23,7 @@ library(MetBrewer)
 
 df <- read.csv("Perc_AngExpress_longish_scored.csv")
 
+
 #a dataframe with only the relevant variables, and predictors as factors
 df2 <- df %>% 
             select(duration, response_id, scenario, harm_target, prot_gender, anger_express, 
@@ -325,7 +326,7 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
     steadfastness_m1 <- lmer(steadfastness ~ harm_target * prot_gender * anger_express + (1 | response_id),
                                  data = df2)
     anova(steadfastness_m1)
-    summary(steadfastness_m1)
+    #summary(steadfastness_m1)
     #pander::pander( anova( steadfastness_m1 ) ) 
 ```
 
@@ -463,7 +464,7 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
 
 ### Research question 3
 
-```{r steadfast-visuals-rq3, fig.align='center', fig.width=7}
+```{r steadfast-visuals-rq3, fig.align='center', fig.width=5}
     #getting mean and se for the graph
       descripts <- psych::describeBy(df2$steadfastness, 
                          group = list(df2$anger_express, df2$harm_target, df2$prot_gender), mat = TRUE)   %>% 
@@ -538,7 +539,7 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
     wisdom_m1 <- lmer(wisdom ~ harm_target * prot_gender * anger_express + (1 | response_id),
                                  data = df2)
     anova(wisdom_m1)
-    summary(wisdom_m1)
+    #summary(wisdom_m1)
     #pander::pander( anova( wisdom_m1 ) ) 
 ```
 
@@ -676,7 +677,7 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
 
 ### Research question 3
 
-```{r wisd-visuals-rq3, fig.align='center', fig.width=7}
+```{r wisd-visuals-rq3, fig.align='center', fig.width=5}
       #getting mean and se for the graph
       descripts <- psych::describeBy(df2$wisdom, 
                          group = list(df2$anger_express, df2$harm_target, df2$prot_gender), mat = TRUE)   %>% 
@@ -751,7 +752,7 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
     obstinacy_m1 <- lmer(obstinacy ~ harm_target * prot_gender * anger_express + (1 | response_id),
                                  data = df2)
     anova(obstinacy_m1)
-    summary(obstinacy_m1)
+    #summary(obstinacy_m1)
     #pander::pander( anova( obstinacy_m1 ) ) 
 ```
 
@@ -804,19 +805,6 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
     
     
      #interaction plot - dot-whiskers and lines
-              ggplot(
-                descripts,
-                aes(x = Target, color = Expression, group = Expression, y = mean,
-                    ymin = mean-se, ymax = mean+se)) + 
-                geom_line(position = position_dodge(0.3)) +
-                geom_errorbar(position = position_dodge(0.3), width = 0.2) +
-                geom_point(aes(color = Expression), position = position_dodge(0.3)) +
-                ylim(1, 5) +
-                theme_bw() + 
-                ggtitle("Obstinacy") +
-                labs(y="Rating of Protagonist's Obstinacy", x = "Target of Harm", color = "Anger Expressed") +
-                theme(plot.title = element_text(hjust = 0.5))
-              
     obst_rq1 <-  ggplot(
                 descripts,
                 aes(x = Target, color = Expression, group = Expression, y = mean,
@@ -906,7 +894,7 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
 
 ### Research question 3
 
-```{r obstin-visuals-rq3, fig.align='center', fig.width=7}
+```{r obstin-visuals-rq3, fig.align='center', fig.width=5}
 
       #getting mean and se for the graph
       descripts <- psych::describeBy(df2$obstinacy, 
