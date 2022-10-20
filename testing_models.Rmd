@@ -85,7 +85,10 @@ knitr::opts_chunk$set(echo = TRUE, emm_options(pbkrtest.limit = 4000))
 ### First research question
 
 ```{r communal-model1}
-    emmeans(communalism_m1, pairwise ~ anger_express | harm_target)
+    emmeans(communalism_m1, pairwise ~ anger_express | )
+
+#additional
+    emmeans(communalism_m1, pairwise ~ harm_target | anger_express)
 ```    
 
 ### Second research question
@@ -178,21 +181,22 @@ For this first outcome, I'll try three different packages for visualization. Onl
      #interaction plot - dot-whiskers and line plot
   com_rq1 <-  ggplot(
                 descripts,
-                aes(x = Target, color = Expression, group = Expression, y = mean,
+                aes(x = Expression, color = Target, group = Target, y = mean,
                     ymin = mean-se, ymax = mean+se)) + 
                 geom_line(position = position_dodge(0.1)) +
                 geom_errorbar(position = position_dodge(0.1), width = 0.12) +
-                geom_point(aes(color = Expression), position = position_dodge(0.1), size = .8) +
+                geom_point(aes(color = Target), position = position_dodge(0.1), size = .8) +
                 ylim(1, 5) +
                 theme_bw() + 
                 ggtitle("Communalism") +
-                labs(y="Rating of Protagonist's Communalism", x = "Target of Harm", color = "Anger Expressed") +
+                labs(y="Rating of Protagonist's Communalism", x = "Anger Expressed", color = "Target of Harm") +
                 theme(plot.title = element_text(hjust = 0.5))+ 
                 scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))
       com_rq1
       
       #ggsave(plot = com_rq1, width = 5, height = 5, dpi = 600, filename = "communalism_rq1.png")
-     
+      
+
        #interaction plot - bar plot
               ggplot(
                 descripts,
@@ -317,10 +321,6 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
 ### Omnibus
 
 ```{r steadfast-model0}
-#setting the contrasts
-    contrasts(df2$harm_target) <- contr.sum
-    contrasts(df2$prot_gender) <- contr.sum
-    contrasts(df2$anger_express) <- contr.sum
 
 #omnibus model
     steadfastness_m1 <- lmer(steadfastness ~ harm_target * prot_gender * anger_express + (1 | response_id),
@@ -335,6 +335,10 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
 
 ```{r steadfast-model1}
     emmeans(steadfastness_m1, pairwise ~ anger_express | harm_target)
+
+#additional
+    emmeans(steadfastness_m1, pairwise ~ harm_target | anger_express)
+
 ```    
 
 ### Second research question
@@ -378,15 +382,15 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
      #interaction plot - dot-whiskers and lines
           stead_rq1 <-  ggplot(
                             descripts,
-                            aes(x = Target, color = Expression, group = Expression, y = mean,
+                            aes(x = Expression, color = Target, group = Target, y = mean,
                                 ymin = mean-se, ymax = mean+se)) + 
                             geom_line(position = position_dodge(0.1)) +
                             geom_errorbar(position = position_dodge(0.1), width = 0.12) +
-                            geom_point(aes(color = Expression), position = position_dodge(0.1), size = .8) +
+                            geom_point(aes(color = Target), position = position_dodge(0.1), size = .8) +
                             ylim(1, 5) +
                             theme_bw() + 
                             ggtitle("Steadfastness") +
-                            labs(y="Rating of Protagonist's Steadfastness", x = "Target of Harm", color = "Anger Expressed") +
+                            labs(y="Rating of Protagonist's Steadfastness", x = "Anger Expressed", color = "Target of Harm") +
                             theme(plot.title = element_text(hjust = 0.5))+ 
                             scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))
           stead_rq1
@@ -530,11 +534,6 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
 ### Omnibus
 
 ```{r wisd-model0}
-#setting the contrasts
-    contrasts(df2$harm_target) <- contr.sum
-    contrasts(df2$prot_gender) <- contr.sum
-    contrasts(df2$anger_express) <- contr.sum
-
 #omnibus model
     wisdom_m1 <- lmer(wisdom ~ harm_target * prot_gender * anger_express + (1 | response_id),
                                  data = df2)
@@ -548,6 +547,9 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
 
 ```{r wisd-model1}
     emmeans(wisdom_m1, pairwise ~ anger_express | harm_target)
+
+#additional
+    emmeans(wisdom_m1, pairwise ~ harm_target | anger_express)
 ```    
 
 ### Second research question
@@ -591,15 +593,15 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
      #interaction plot - dot-whiskers and lines
     wis_rq1 <-  ggplot(
                 descripts,
-                aes(x = Target, color = Expression, group = Expression, y = mean,
+                aes(x = Expression, color = Target, group = Target, y = mean,
                     ymin = mean-se, ymax = mean+se)) + 
                 geom_line(position = position_dodge(0.1)) +
                 geom_errorbar(position = position_dodge(0.1), width = 0.12) +
-                geom_point(aes(color = Expression), position = position_dodge(0.1), size = .8) +
+                geom_point(aes(color = Target), position = position_dodge(0.1), size = .8) +
                 ylim(1, 5) +
                 theme_bw() + 
                 ggtitle("Wisdom") +
-                labs(y="Rating of Protagonist's Wisdom", x = "Target of Harm", color = "Anger Expressed") +
+                labs(y="Rating of Protagonist's Wisdom", x = "Anger Expressed", color = "Target of Harm") +
                 theme(plot.title = element_text(hjust = 0.5))+ 
                 scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))
               
@@ -743,10 +745,6 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
 ### Omnibus
 
 ```{r obstin-model0}
-#setting the contrasts
-    contrasts(df2$harm_target) <- contr.sum
-    contrasts(df2$prot_gender) <- contr.sum
-    contrasts(df2$anger_express) <- contr.sum
 
 #omnibus model
     obstinacy_m1 <- lmer(obstinacy ~ harm_target * prot_gender * anger_express + (1 | response_id),
@@ -761,6 +759,9 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
 
 ```{r obstin-model1}
     emmeans(obstinacy_m1, pairwise ~ anger_express | harm_target)
+
+#additional
+    emmeans(obstinacy_m1, pairwise ~ harm_target | anger_express)
 ```    
 
 ### Second research question
@@ -807,15 +808,15 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
      #interaction plot - dot-whiskers and lines
     obst_rq1 <-  ggplot(
                 descripts,
-                aes(x = Target, color = Expression, group = Expression, y = mean,
+                aes(x = Expression, color = Target, group = Target, y = mean,
                     ymin = mean-se, ymax = mean+se)) + 
                 geom_line(position = position_dodge(0.1)) +
                 geom_errorbar(position = position_dodge(0.1), width = 0.12) +
-                geom_point(aes(color = Expression), position = position_dodge(0.1), size = .8) +
+                geom_point(aes(color = Target), position = position_dodge(0.1), size = .8) +
                 ylim(1, 5) +
                 theme_bw() + 
                 ggtitle("Obstinacy") +
-                labs(y="Rating of Protagonist's Obstinacy", x = "Target of Harm", color = "Anger Expressed") +
+                labs(y="Rating of Protagonist's Obstinacy", x = "Anger Expressed", color = "Target of Harm") +
                 theme(plot.title = element_text(hjust = 0.5))+ 
                 scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))
               
