@@ -228,15 +228,15 @@ For this first outcome, I'll try three different packages for visualization. Onl
            
         com_rq2 <-  ggplot(
                      descripts,
-                      aes(x = Gender, color = Expression, group = Expression, y = mean,
+                      aes(x = Expression, color = Gender, group = Gender, y = mean,
                           ymin = mean-se, ymax = mean+se)) + 
                       geom_line(position = position_dodge(0.1)) +
                       geom_errorbar(position = position_dodge(0.1), width = 0.12) +
-                      geom_point(aes(color = Expression), position = position_dodge(0.1), size = .8) +
+                      geom_point(aes(color = Gender), position = position_dodge(0.1), size = .8) +
                       ylim(1, 5) +
                       theme_bw() + 
                       ggtitle("Communalism") +
-                      labs(y="Rating of Protagonist's Communalism", x = "Protagonist's Gender", color = "Anger Expressed") +
+                      labs(y="Rating of Protagonist's Communalism", x = "Anger Expressed", color = "Protagonist's Gender") +
                       theme(plot.title = element_text(hjust = 0.5))+ 
                       scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))
             com_rq2
@@ -433,15 +433,15 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
  
         stead_rq2 <-  ggplot(
                             descripts,
-                            aes(x = Gender, color = Expression, group = Expression, y = mean,
+                            aes(x = Expression, color = Gender, group = Gender, y = mean,
                                 ymin = mean-se, ymax = mean+se)) + 
                             geom_line(position = position_dodge(0.1)) +
                             geom_errorbar(position = position_dodge(0.1), width = 0.12) +
-                            geom_point(aes(color = Expression), position = position_dodge(0.1), size = .8) +
+                            geom_point(aes(color = Gender), position = position_dodge(0.1), size = .8) +
                             ylim(1, 5) +
                             theme_bw() + 
                             ggtitle("Steadfastness") +
-                            labs(y="Rating of Protagonist's Steadfastness", x = "Protagonist's Gender", color = "Anger Expressed") +
+                            labs(y="Rating of Protagonist's Steadfastness", x = "Anger Expressed", color = "Protagonist's Gender") +
                             theme(plot.title = element_text(hjust = 0.5))+ 
                             scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))
           stead_rq2
@@ -644,15 +644,15 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
 
     wis_rq2 <-  ggplot(
                 descripts,
-                aes(x = Gender, color = Expression, group = Expression, y = mean,
+                aes(x = Expression, color = Gender, group = Gender, y = mean,
                     ymin = mean-se, ymax = mean+se)) + 
                 geom_line(position = position_dodge(0.1)) +
                 geom_errorbar(position = position_dodge(0.1), width = 0.12) +
-                geom_point(aes(color = Expression), position = position_dodge(0.1), size = .8) +
+                geom_point(aes(color = Gender), position = position_dodge(0.1), size = .8) +
                 ylim(1, 5) +
                 theme_bw() + 
                 ggtitle("Wisdom") +
-                labs(y="Rating of Protagonist's Wisdom", x = "Protagonist's Gender", color = "Anger Expressed") +
+                labs(y="Rating of Protagonist's Wisdom", x = "Anger Expressed", color = "Protagonist's Gender") +
                 theme(plot.title = element_text(hjust = 0.5))+ 
                 scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))
               
@@ -859,15 +859,15 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
 
     obst_rq2 <-  ggplot(
                 descripts,
-                aes(x = Gender, color = Expression, group = Expression, y = mean,
+                aes(x = Expression, color = Gender, group = Gender, y = mean,
                     ymin = mean-se, ymax = mean+se)) + 
                 geom_line(position = position_dodge(0.1)) +
                 geom_errorbar(position = position_dodge(0.1), width = 0.12) +
-                geom_point(aes(color = Expression), position = position_dodge(0.1), size = .8) +
+                geom_point(aes(color = Gender), position = position_dodge(0.1), size = .8) +
                 ylim(1, 5) +
                 theme_bw() + 
                 ggtitle("Obstinacy") +
-                labs(y="Rating of Protagonist's Obstinacy", x = "Protagonist's Gender", color = "Anger Expressed") +
+                labs(y="Rating of Protagonist's Obstinacy", x = "Anger Expressed", color = "Protagonist's Gender") +
                 theme(plot.title = element_text(hjust = 0.5))+ 
                 scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))
               
