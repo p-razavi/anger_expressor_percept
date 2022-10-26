@@ -85,7 +85,7 @@ knitr::opts_chunk$set(echo = TRUE, emm_options(pbkrtest.limit = 4000))
 ### First research question
 
 ```{r communal-model1}
-    emmeans(communalism_m1, pairwise ~ anger_express | )
+    emmeans(communalism_m1, pairwise ~ anger_express | harm_target)
 
 #additional
     emmeans(communalism_m1, pairwise ~ harm_target | anger_express)
