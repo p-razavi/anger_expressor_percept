@@ -81,6 +81,11 @@ knitr::opts_chunk$set(echo = TRUE, emm_options(pbkrtest.limit = 4000))
     #pander::pander( anova( communalism_m1 ) ) 
 ```
 
+### Main effect of expressivity
+
+```{r communal-maineffect}
+emmeans(communalism_m1, pairwise ~ anger_express)
+```
 
 ### First research question
 
@@ -330,6 +335,11 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
     #pander::pander( anova( steadfastness_m1 ) ) 
 ```
 
+### Main effect of expressivity
+
+```{r steadfast-maineffect}
+emmeans(steadfastness_m1, pairwise ~ anger_express)
+```
 
 ### First research question
 
@@ -542,6 +552,11 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
     #pander::pander( anova( wisdom_m1 ) ) 
 ```
 
+### Main effect of expressivity
+
+```{r wisd-maineffect}
+emmeans(wisdom_m1, pairwise ~ anger_express)
+```
 
 ### First research question
 
@@ -752,6 +767,12 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
     anova(obstinacy_m1)
     #summary(obstinacy_m1)
     #pander::pander( anova( obstinacy_m1 ) ) 
+```
+
+### Main effect of expressivity
+
+```{r obstin-maineffect}
+emmeans(obstinacy_m1, pairwise ~ anger_express)
 ```
 
 
