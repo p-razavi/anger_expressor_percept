@@ -105,17 +105,7 @@ emmeans(communalism_m1, pairwise ~ anger_express)
 
 ### Third research question
 
-```{r communal-models3}
-#interaction
-  communalism_rq3_model <- df2 %>% 
-                            dplyr::filter(anger_express == "Yes") %>% 
-                                lmer(communalism ~ harm_target * prot_gender + (1 | response_id),
-                                                           data = .)
-  anova(communalism_rq3_model, type = "III") %>% knitr::kable(format = "pipe")
-#simple interaction effects
-  emmeans(communalism_rq3_model, pairwise ~  prot_gender | harm_target)
-
-```
+Since the 3-way interaction is not significant, I'm not running any follow-up simple interaction effects.
 
 ## Figures 
 
@@ -131,11 +121,6 @@ For this first outcome, I'll try three different packages for visualization. Onl
     #second research question
     emmip(communalism_m1, prot_gender ~ anger_express)    
 
-
-    #third research question
-    emmip(communalism_m1, anger_express ~ harm_target * prot_gender) 
-    
-    emmip(communalism_rq3_model, ~ prot_gender * harm_target) 
 ```    
     
 ### Using sjPlot
@@ -160,13 +145,6 @@ For this first outcome, I'll try three different packages for visualization. Onl
                     theme_bw()
     sc_rq2_p
     
-    #third research question
-    plot_model(communalism_rq3_model, type = "pred", terms = c("harm_target", "prot_gender"),
-                    title = "Outcome: Communalism",
-                     axis.title = c("Target of Harm", "Rating of Communalism"),
-                    legend.title = "Protagonist's Gender",
-                    axis.lim = c(1,5)) +
-                    theme_bw()
 ```
         
 ### Using ggplot
@@ -262,35 +240,7 @@ For this first outcome, I'll try three different packages for visualization. Onl
                 theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
                 scale_fill_manual(values=met.brewer("Nizami", 2, direction=-1)) 
               
-#research question 3
-      descripts <- psych::describeBy(df2$communalism, 
-                         group = list(df2$anger_express, df2$harm_target, df2$prot_gender), mat = TRUE)   %>% 
-                        select(group1, group2, group3, mean, se) %>% 
-                        transmute(Expression = group1,
-                                  Target = group2,
-                                  Gender = group3,
-                                  mean, se) %>% 
-                        filter(Expression == "Yes")
 
-      
-     #interaction plot - dot-whiskers and line plot
-    com_rq3 <- ggplot(
-                descripts,
-                aes(x = Gender, color = Target, group = Target, y = mean,
-                    ymin = mean-se, ymax = mean+se)) + 
-                geom_line(position = position_dodge(0.1)) +
-                geom_errorbar(position = position_dodge(0.1), width = 0.12) +
-                geom_point(aes(color = Target), position = position_dodge(0.1), size = .8) +
-                ylim(1, 5) +
-                theme_bw() + 
-                ggtitle("Communalism") +
-                labs(y="Rating of Protagonist's Communalism", x = "Protagonist's Gender", color = "Target of Harm") +
-                theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
-                      scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))      
-
-    com_rq3
-      #ggsave(plot = com_rq3, width = 5, height = 5, dpi = 600, filename = "communalism_rq3.png")
-       
 ```
 
 It seems that the ggplot figures are the most clear ones. For the remaining outcomes, I'll only use ggplot figures.
@@ -327,7 +277,6 @@ It seems that the ggplot figures are the most clear ones. For the remaining outc
 
 ```{r steadfast-model0}
 
-#omnibus model
     steadfastness_m1 <- lmer(steadfastness ~ harm_target * prot_gender * anger_express + (1 | response_id),
                                  data = df2)
     anova(steadfastness_m1)
@@ -360,18 +309,8 @@ emmeans(steadfastness_m1, pairwise ~ anger_express)
 
 ### Third research question
 
-```{r steadfast-models3}
-#interaction
-  steadfast_rq3_model <- df2 %>% 
-                            dplyr::filter(anger_express == "Yes") %>% 
-                                lmer(steadfastness ~ harm_target * prot_gender + (1 | response_id),
-                                                           data = .)
-  anova(steadfast_rq3_model, type = "III") %>% knitr::kable(format = "pipe")
-#simple interaction effects
-  emmeans(steadfast_rq3_model, pairwise ~  prot_gender | harm_target)
-  
-  
-```
+Since the 3-way interaction is not significant, I'm not running any follow-up simple interaction effects.
+
 
 ## Figures 
 
@@ -476,43 +415,6 @@ emmeans(steadfastness_m1, pairwise ~ anger_express)
 ```
 
 
-### Research question 3
-
-```{r steadfast-visuals-rq3, fig.align='center', fig.width=5}
-    #getting mean and se for the graph
-      descripts <- psych::describeBy(df2$steadfastness, 
-                         group = list(df2$anger_express, df2$harm_target, df2$prot_gender), mat = TRUE)   %>% 
-                        select(group1, group2, group3, mean, se) %>% 
-                        transmute(Expression = group1,
-                                  Target = group2,
-                                  Gender = group3,
-                                  mean, se) %>% 
-                        filter(Expression == "Yes")
-
-      
-     #interaction plot - dot-whiskers and line plot
-  stead_rq3 <- ggplot(
-                descripts,
-                aes(x = Gender, color = Target, group = Target, y = mean,
-                    ymin = mean-se, ymax = mean+se)) + 
-                geom_line(position = position_dodge(0.1)) +
-                geom_errorbar(position = position_dodge(0.1), width = 0.12) +
-                geom_point(aes(color = Target), position = position_dodge(0.1), size = .8) +
-                ylim(1, 5) +
-                theme_bw() + 
-                ggtitle("Steadfastness") +
-                labs(y="Rating of Protagonist's Communalism", x = "Protagonist's Gender", color = "Target of Harm") +
-                theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
-                      scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))      
-
-    stead_rq3
-      #ggsave(plot = stead_rq3, width = 5, height = 5, dpi = 300, filename = "steadfastness_rq3.png")
-    
-    
-```
-
-
-
 # Outcome: Wisdom
 
 ## Descriptives
@@ -544,7 +446,6 @@ emmeans(steadfastness_m1, pairwise ~ anger_express)
 ### Omnibus
 
 ```{r wisd-model0}
-#omnibus model
     wisdom_m1 <- lmer(wisdom ~ harm_target * prot_gender * anger_express + (1 | response_id),
                                  data = df2)
     anova(wisdom_m1)
@@ -576,18 +477,8 @@ emmeans(wisdom_m1, pairwise ~ anger_express)
 
 ### Third research question
 
-```{r wisd-models3}
+Since the 3-way interaction is not significant, I'm not running any follow-up simple interaction effects.
 
-#interaction
-  wisdom_rq3_model <- df2 %>% 
-                            dplyr::filter(anger_express == "Yes") %>% 
-                                lmer(wisdom ~ harm_target * prot_gender + (1 | response_id),
-                                                           data = .)
-  anova(wisdom_rq3_model, type = "III") %>% knitr::kable(format = "pipe")
-#simple interaction effects
-  emmeans(wisdom_rq3_model, pairwise ~  prot_gender | harm_target)
-  
-```
 
 ## Figures 
 
@@ -692,43 +583,6 @@ emmeans(wisdom_m1, pairwise ~ anger_express)
 ```
 
 
-### Research question 3
-
-```{r wisd-visuals-rq3, fig.align='center', fig.width=5}
-      #getting mean and se for the graph
-      descripts <- psych::describeBy(df2$wisdom, 
-                         group = list(df2$anger_express, df2$harm_target, df2$prot_gender), mat = TRUE)   %>% 
-                        select(group1, group2, group3, mean, se) %>% 
-                        transmute(Expression = group1,
-                                  Target = group2,
-                                  Gender = group3,
-                                  mean, se) %>% 
-                        filter(Expression == "Yes")
-
-      
-     #interaction plot - dot-whiskers and line plot
-  wis_rq3 <- ggplot(
-                descripts,
-                aes(x = Gender, color = Target, group = Target, y = mean,
-                    ymin = mean-se, ymax = mean+se)) + 
-                geom_line(position = position_dodge(0.1)) +
-                geom_errorbar(position = position_dodge(0.1), width = 0.12) +
-                geom_point(aes(color = Target), position = position_dodge(0.1), size = .8) +
-                ylim(1, 5) +
-                theme_bw() + 
-                ggtitle("Wisdom") +
-                labs(y="Rating of Protagonist's Wisdom", x = "Protagonist's Gender", color = "Target of Harm") +
-                theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
-                      scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))      
-
-    wis_rq3
-      #ggsave(plot = wis_rq3, width = 5, height = 5, dpi = 300, filename = "wisdom_rq3.png")
-    
-
-```
-
-
-
 # Outcome: Obstinacy
 
 ## Descriptives
@@ -761,7 +615,6 @@ emmeans(wisdom_m1, pairwise ~ anger_express)
 
 ```{r obstin-model0}
 
-#omnibus model
     obstinacy_m1 <- lmer(obstinacy ~ harm_target * prot_gender * anger_express + (1 | response_id),
                                  data = df2)
     anova(obstinacy_m1)
@@ -796,16 +649,50 @@ emmeans(obstinacy_m1, pairwise ~ anger_express)
 
 ```{r obstin-models3}
 
-#interaction
-  obstinacy_rq3_model <- df2 %>% 
-                            dplyr::filter(anger_express == "Yes") %>% 
-                                lmer(obstinacy ~ harm_target * prot_gender + (1 | response_id),
+###########female vs. male [This probably has a better fit for the study results.]
+#simple interaction for gender = female
+  obstinacy_rq3_female <- df2 %>% 
+                            dplyr::filter(prot_gender == "Female") %>% 
+                                lmer(obstinacy ~ harm_target * anger_express + (1 | response_id),
                                                            data = .)
-  anova(obstinacy_rq3_model, type = "III") %>% knitr::kable(format = "pipe")
+  anova(obstinacy_rq3_female, type = "III") %>% knitr::kable(format = "pipe")
 
-#simple interaction effects
-  emmeans(obstinacy_rq3_model, pairwise ~  prot_gender | harm_target)
+  #simple interaction effects
+  emmeans(obstinacy_rq3_female, pairwise ~  anger_express | harm_target)
+     
 
+#simple interaction for gender = male
+  obstinacy_rq3_male <- df2 %>% 
+                            dplyr::filter(prot_gender == "Male") %>% 
+                                lmer(obstinacy ~ harm_target * anger_express + (1 | response_id),
+                                                           data = .)
+  anova(obstinacy_rq3_male, type = "III") %>% knitr::kable(format = "pipe")
+
+  #simple interaction effects
+  emmeans(obstinacy_rq3_male, pairwise ~  anger_express | harm_target)
+  
+
+
+###########self vs. other
+#simple interaction for target = self
+  obstinacy_rq3_self <- df2 %>% 
+                            dplyr::filter(harm_target == "Self") %>% 
+                                lmer(obstinacy ~ prot_gender * anger_express + (1 | response_id),
+                                                           data = .)
+  anova(obstinacy_rq3_self, type = "III") %>% knitr::kable(format = "pipe")
+
+  #simple interaction effects
+  emmeans(obstinacy_rq3_self, pairwise ~  anger_express | prot_gender)
+     
+#simple interaction for target = self
+  obstinacy_rq3_other <- df2 %>% 
+                            dplyr::filter(harm_target == "Other") %>% 
+                                lmer(obstinacy ~ prot_gender * anger_express + (1 | response_id),
+                                                           data = .)
+  anova(obstinacy_rq3_other, type = "III") %>% knitr::kable(format = "pipe")
+
+  #simple interaction effects
+  emmeans(obstinacy_rq3_other, pairwise ~  anger_express | prot_gender)
 
 
 ```
