@@ -804,8 +804,9 @@ emmeans(obstinacy_m1, pairwise ~ anger_express)
 ### Research question 3
 
 ```{r obstin-visuals-rq3, fig.align='center', fig.width=5}
+####Protagonist: Female
 
-      #getting mean and se for the graph
+    #getting mean and se for the graph
       descripts <- psych::describeBy(df2$obstinacy, 
                          group = list(df2$anger_express, df2$harm_target, df2$prot_gender), mat = TRUE)   %>% 
                         select(group1, group2, group3, mean, se) %>% 
@@ -813,26 +814,56 @@ emmeans(obstinacy_m1, pairwise ~ anger_express)
                                   Target = group2,
                                   Gender = group3,
                                   mean, se) %>% 
-                        filter(Expression == "Yes")
-
-      
-     #interaction plot - dot-whiskers and line plot
-  obst_rq3 <- ggplot(
-                descripts,
-                aes(x = Gender, color = Target, group = Target, y = mean,
-                    ymin = mean-se, ymax = mean+se)) + 
-                geom_line(position = position_dodge(0.1)) +
-                geom_errorbar(position = position_dodge(0.1), width = 0.12) +
-                geom_point(aes(color = Target), position = position_dodge(0.1), size = .8) +
-                ylim(1, 5) +
-                theme_bw() + 
-                ggtitle("Obstinacy") +
-                labs(y="Rating of Protagonist's Obstinacy", x = "Protagonist's Gender", color = "Target of Harm") +
-                theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 10)) + 
-                      scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))      
-
-    obst_rq3
-      #ggsave(plot = obst_rq3, width = 5, height = 5, dpi = 300, filename = "obstinacy_rq3.png")
+                        filter(Gender == "Female")
     
+    
+     #interaction plot - dot-whiskers and lines
+    obst_rq3_fem <-  ggplot(
+                          descripts,
+                          aes(x = Expression, color = Target, group = Target, y = mean,
+                              ymin = mean-se, ymax = mean+se)) + 
+                          geom_line(position = position_dodge(0.1)) +
+                          geom_errorbar(position = position_dodge(0.1), width = 0.12) +
+                          geom_point(aes(color = Target), position = position_dodge(0.1), size = .8) +
+                          ylim(1, 5) +
+                          theme_bw() + 
+                          ggtitle("Female Protagonist") +
+                          labs(y="Rating of Protagonist's Obstinacy", x = "Anger Expressed", color = "Target of Harm") +
+                          theme(plot.title = element_text(hjust = 0.5))+ 
+                          scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))
 
+      obst_rq3_fem
+      #ggsave(plot = obst_rq3_fem, width = 5, height = 5, dpi = 600, filename = "obstinacy_rq3_female.png")
+      
+####Protagonist: Male
+
+    #getting mean and se for the graph
+      descripts <- psych::describeBy(df2$obstinacy, 
+                         group = list(df2$anger_express, df2$harm_target, df2$prot_gender), mat = TRUE)   %>% 
+                        select(group1, group2, group3, mean, se) %>% 
+                        transmute(Expression = group1,
+                                  Target = group2,
+                                  Gender = group3,
+                                  mean, se) %>% 
+                        filter(Gender == "Male")
+    
+    
+     #interaction plot - dot-whiskers and lines
+    obst_rq3_male <-  ggplot(
+                          descripts,
+                          aes(x = Expression, color = Target, group = Target, y = mean,
+                              ymin = mean-se, ymax = mean+se)) + 
+                          geom_line(position = position_dodge(0.1)) +
+                          geom_errorbar(position = position_dodge(0.1), width = 0.12) +
+                          geom_point(aes(color = Target), position = position_dodge(0.1), size = .8) +
+                          ylim(1, 5) +
+                          theme_bw() + 
+                          ggtitle("Male Protagonist") +
+                          labs(y="Rating of Protagonist's Obstinacy", x = "Anger Expressed", color = "Target of Harm") +
+                          theme(plot.title = element_text(hjust = 0.5))+ 
+                          scale_color_manual(values=met.brewer("Nizami", 2, direction=-1))
+
+      obst_rq3_male
+      #ggsave(plot = obst_rq3_male, width = 5, height = 5, dpi = 600, filename = "obstinacy_rq3_male.png")
+      
 ```
